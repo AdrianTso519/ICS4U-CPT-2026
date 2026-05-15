@@ -3,7 +3,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.event.*;
 
-public class ICS4CPT implements ActionListener{
+public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListener{
 	
 	// Properties
 	JFrame theFrame = new JFrame("CPT");
@@ -13,8 +13,37 @@ public class ICS4CPT implements ActionListener{
 	// Game Properties
 	
 	
+	
 	// Methods
 	public void actionPerformed(ActionEvent evt){
+		
+	}
+	
+	public void mouseMoved(MouseEvent evt){
+		
+	}
+	
+	public void mouseDragged(MouseEvent evt){
+		
+	}
+	
+	public void mouseExited(MouseEvent evt){
+		
+	}
+	
+	public void mouseEntered(MouseEvent evt){
+		
+	}
+	
+	public void mouseReleased(MouseEvent evt){
+		
+	}
+	
+	public void mousePressed(MouseEvent evt){
+		
+	}
+	
+	public void mouseClicked(MouseEvent evt){
 		
 	}
 	
