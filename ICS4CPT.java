@@ -10,6 +10,8 @@ public class ICS4CPT implements ActionListener{
 	JPanel thePanel = new JPanel();
 	Timer theTimer = new Timer(1000/60, this);
 	
+	// Game Properties
+	
 	
 	// Methods
 	public void actionPerformed(ActionEvent evt){
@@ -24,6 +26,7 @@ public class ICS4CPT implements ActionListener{
 		theFrame.setContentPane(thePanel);
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		theFrame.pack();
+		theFrame.setResizable(false);
 		theFrame.setVisible(true);
 		theTimer.start();
 	}
