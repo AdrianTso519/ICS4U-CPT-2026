@@ -1,3 +1,12 @@
+//******************************************************************************
+// Program Name: Hues and Cues Game
+// Authors: Adrian Tso, Hansel Suen, Ethan Wong
+// Date: TBD
+// School: St. Augustine CHS Computer Science
+// Description: An online version of the Hues and Cues board game 
+//******************************************************************************
+
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
