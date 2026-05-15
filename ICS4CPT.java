@@ -16,7 +16,9 @@ public class ICS4CPT implements ActionListener{
 		
 	}
 	
-	// COnstructor
+	// Unused Methods
+	
+	// Constructor
 	public ICS4CPT() {
 		thePanel.setPreferredSize(new Dimension(1280, 720));
 		theFrame.setContentPane(thePanel);
