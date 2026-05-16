@@ -172,8 +172,6 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 					g2.drawRect(x, y, tileWidth, tileHeight);
 				}
 			}
-		
 		}
-	
 	}
 }
