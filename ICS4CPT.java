@@ -6,7 +6,7 @@
 // Description: An online version of the Hues and Cues board game 
 //******************************************************************************
 
-
+import java.io.*;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -19,17 +19,28 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 	JPanel thePanel = new JPanel();
 	Timer theTimer = new Timer(1000/60, this);
 	
-	// Game Properties
+	// Game buttons
 	JTextArea theArea = new JTextArea();
 	JScrollPane theScroll = new JScrollPane(theArea);
 	JTextField theField = new JTextField();
 	JButton theButton = new JButton("Connect");
 	
+	// Colour grid Array
+	private ColourTile[][] fullColourGrid = new ColourTile[16][30];
+	
+	// Colour values 
+	class ColourTile{
+		Color ColorValue;
+		ColourTile(int red, int green, int blue){
+			ColorValue = new Color(red, green, blue);
+		}
+	}
+	
 	// Network Connection Properties
 	SuperSocketMaster Socket = null;
 	
 	
-	// Methods
+	// Mandatory Methods
 	public void actionPerformed(ActionEvent evt){
 		// Field triggered
 		if(evt.getSource() == theField){
@@ -84,24 +95,55 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 		
 	}
 	
+	// Self made Methods
+	public void CSVGrid(String filename){
+		try(BufferedReader theReader = new BufferedReader(new FileReader(filename))){
+			String line;
+			// Continuously get data for colour grid while file has not ended
+			while((line = theReader.readLine()) != null){
+				String[] colours = line.split(",");
+				int row = Integer.parseInt(colours[0]);
+				int column = Integer.parseInt(colours[1]);
+				int red = Integer.parseInt(colours[2]);
+				int green = Integer.parseInt(colours[3]);
+				int blue = Integer.parseInt(colours[4]);
+				
+				// take data from earlier and return it as an rgb value
+				// need to fix
+				fullColourGrid[row][column] = new ColourTile(red,green,blue);
+				
+			}
+		}catch(IOException e){
+			System.out.println("Failed to process CSV File");
+		}
+	}
+	
+	
 	// Unused Methods
 	
 	// Constructor
 	public ICS4CPT() {
+		// Panel stuff
 		thePanel.setLayout(null);
 		thePanel.setPreferredSize(new Dimension(1280,720));
 		
 		theScroll.setBounds(980,0,300,300);
 		thePanel.add(theScroll);
 		
+		// textfield stuff
 		theField.setBounds(980,300,300,100);
 		theField.addActionListener(this);
 		thePanel.add(theField);
 		
+		//button stuff
 		theButton.setBounds(980,400,300,100);
 		theButton.addActionListener(this);
 		thePanel.add(theButton);
 		
+		// grid assets
+		CSVGrid("colors.csv");
+		
+		// frame stuff
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		theFrame.setContentPane(thePanel);
 		theFrame.pack();
