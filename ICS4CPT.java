@@ -28,6 +28,9 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 	// Colour grid Array
 	private ColourTile[][] fullColourGrid = new ColourTile[16][30];
 	
+	// Game state
+	int GameState = 0;
+	
 	// Colour values 
 	class ColourTile{
 		Color ColorValue;
