@@ -149,12 +149,4 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 		theFrame.pack();
 		theFrame.setVisible(true);
 	}
-	
-	
-	// Main Method
-	public static void main(String [] args){
-		new ICS4CPT();
-	}
-	
-	
 }
