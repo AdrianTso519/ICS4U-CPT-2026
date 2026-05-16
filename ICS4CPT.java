@@ -16,7 +16,7 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 	
 	// Properties
 	JFrame theFrame = new JFrame("CPT");
-	JPanel thePanel = new JPanel();
+	GamePanel thePanel = new GamePanel();
 	Timer theTimer = new Timer(1000/60, this);
 	
 	// Game buttons
@@ -133,5 +133,47 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 		theFrame.setContentPane(thePanel);
 		theFrame.pack();
 		theFrame.setVisible(true);
+	}
+	
+	 class GamePanel extends JPanel{
+	
+		int tileWidth = 32;
+		int tileHeight = 20;
+		int GridStartX = 160;
+		int GridStartY = 60;
+	
+		public void paintComponent(Graphics g){
+			super.paintComponent(g);
+			Graphics2D g2 = (Graphics2D) g;
+			
+			// background colour
+			g2.setColor(new Color(230, 230,230));
+			g2.fillRect(0,0,1280,720);
+		
+			// for loops to get through all 480 slots
+			for(int row = 0; row < 16; row++){
+				for(int col = 0; col < 30; col++){
+					// access current tile from array
+					ColourTile tile = fullColourGrid[row][col];
+					
+					// safety check
+					if(tile == null) continue;
+					
+					// math coordinate position
+					int x = GridStartX + (col * tileWidth);
+					int y = GridStartY + (row * tileHeight);
+					
+					// draw rectangle blocks
+					g2.setColor(tile.ColorValue);
+					g2.fillRect(x,y,tileWidth,tileHeight);
+					
+					// draw borders
+					g2.setColor(new Color(40, 40, 40));
+					g2.drawRect(x, y, tileWidth, tileHeight);
+				}
+			}
+		
+		}
+	
 	}
 }
