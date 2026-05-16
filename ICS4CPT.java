@@ -138,9 +138,9 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 	 class GamePanel extends JPanel{
 	
 		int tileWidth = 32;
-		int tileHeight = 20;
-		int GridStartX = 160;
-		int GridStartY = 60;
+		int tileHeight = 32;
+		int GridStartX = 0;
+		int GridStartY = 0;
 	
 		public void paintComponent(Graphics g){
 			super.paintComponent(g);
