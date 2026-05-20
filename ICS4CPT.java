@@ -98,7 +98,6 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 				int blue = Integer.parseInt(colours[4]);
 				
 				// take data from earlier and return it as an rgb value
-				// need to fix
 				fullColourGrid[row][column] = new ColourTile(red,green,blue);
 				
 			}
