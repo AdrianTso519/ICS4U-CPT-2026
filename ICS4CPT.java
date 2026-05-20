@@ -80,7 +80,29 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 	
 	public void mouseReleased(MouseEvent evt){}
 	
-	public void mousePressed(MouseEvent evt){}
+	public void mousePressed(MouseEvent evt){
+		// Get pixel coordinates of the mouse
+		int MouseX = evt.getX();
+		int MouseY = evt.getY();
+		
+		// Get grid dimensions
+		int TileWidth = thePanel.tileWidth;
+		int TileHeight = thePanel.tileHeight;
+		int StartX = thePanel.GridStartX;
+		int StartY = thePanel.GridStartY;
+		
+		// Convert coordinates to array (rows and columns)
+		int ColumnClick = (MouseX - StartX) / TileWidth;
+		int RowClick = (MouseY - StartY) / TileHeight;
+		
+		// Check to make sure click is inside grid boundaries
+		if(RowClick >= 0 && RowClick < 16 && ColumnClick >= 0 && ColumnClick < 30){
+			// Get tile that was clicked
+			ColourTile clickedTile = fullColourGrid[RowClick][ColumnClick];
+			
+			System.out.println("Clicked Grid Cell is Row: " + RowClick + "Column: " + ColumnClick);
+		}
+	}
 	
 	public void mouseClicked(MouseEvent evt){}
 	
@@ -113,6 +135,8 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 		// Panel stuff
 		thePanel.setLayout(null);
 		thePanel.setPreferredSize(new Dimension(1280,720));
+		thePanel.addMouseListener(this);
+		thePanel.addMouseMotionListener(this);
 		
 		theScroll.setBounds(960,0,320,620);
 		thePanel.add(theScroll);
@@ -172,4 +196,4 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 		}
 	}
 }
-// ethan is a bum
+
