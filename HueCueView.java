@@ -1,9 +1,9 @@
 //******************************************************************************
-// Program Name: Hues and Cues Game
-// Authors: Adrian Tso, Hansel Suen, Ethan Wong
-// Date: June 9th 2026
-// School: St. Augustine CHS Computer Science
-// Description: An online version of the Hues and Cues board game 
+// Program Name: 	Hues and Cues View
+// Authors: 		Adrian Tso, Hansel Suen, Ethan Wong
+// Date: 			June 9th 2026
+// School: 			St. Augustine CHS Computer Science
+// Description: 	An online version of the Hues and Cues board game 
 //******************************************************************************
 
 import java.io.*;
@@ -121,7 +121,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theFrame.setVisible(true);
 	}
 	
-	class GamePanel extends JPanel{
+	public class GamePanel extends JPanel{
 	
 		int tileWidth = 32;
 		int tileHeight = 32;
