@@ -115,11 +115,11 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 		thePanel.setLayout(null);
 		thePanel.setPreferredSize(new Dimension(1280,720));
 		
-		theScroll.setBounds(980,0,300,300);
+		theScroll.setBounds(960,0,320,620);
 		thePanel.add(theScroll);
 		
 		// textfield stuff
-		theField.setBounds(980,300,300,100);
+		theField.setBounds(960,620,320,100);
 		theField.addActionListener(this);
 		thePanel.add(theField);
 		
