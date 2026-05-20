@@ -3,4 +3,3 @@ public class CPTRunnable{
 		new ICS4CPT();
 	}
 }
-	

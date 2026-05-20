@@ -23,7 +23,21 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 	JTextArea theArea = new JTextArea();
 	JScrollPane theScroll = new JScrollPane(theArea);
 	JTextField theField = new JTextField();
-	JButton theButton = new JButton("Connect");
+	JButton theHost = new JButton("Host");
+	JButton theJoin = new JButton("Join");
+	JButton theHelp = new JButton("Help");
+	JButton theAbout = new JButton("About");
+	JButton theQuit = new JButton("Quit");
+	JButton theConnect = new JButton("Connect");
+	JButton theStart = new JButton("Start");	
+	
+	JLabel theTitle = new JLabel("Hues and Clues");
+	
+	JComponent[] MainMenu;
+	JComponent[] HelpMenu;
+	JComponent[] JoinMenu;
+	JComponent[] AboutMenu;
+	JComponent[] WaitMenu;
 	
 	// Colour grid Array
 	private ColourTile[][] fullColourGrid = new ColourTile[16][30];
@@ -56,7 +70,7 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 			// Establish socket network connection
 			// Construct ssm based on if they will be server or client
 			// Server
-			//Socket = new SuperSocketMaster(6767, this);
+			//Socket = new SuperSocketMaster(6767, this);	
 			// client
 			Socket = new SuperSocketMaster("10.8.49.90", 6112, this);
 			// access the connect method
@@ -153,6 +167,10 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 		
 		theScroll.setBounds(960,0,320,620);
 		thePanel.add(theScroll);
+		
+		MainMenu = new JComponent[]{
+			theTitle, theHost, theJoin, theHelp, theAbout, theQuit
+		};
 		
 		// textfield stuff
 		theField.setBounds(960,620,320,100);
