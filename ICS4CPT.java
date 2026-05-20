@@ -1,7 +1,7 @@
 //******************************************************************************
 // Program Name: Hues and Cues Game
 // Authors: Adrian Tso, Hansel Suen, Ethan Wong
-// Date: TBD
+// Date: June 9th 2026
 // School: St. Augustine CHS Computer Science
 // Description: An online version of the Hues and Cues board game 
 //******************************************************************************
