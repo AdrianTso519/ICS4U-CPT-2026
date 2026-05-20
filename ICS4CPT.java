@@ -100,7 +100,12 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 			// Get tile that was clicked
 			ColourTile clickedTile = fullColourGrid[RowClick][ColumnClick];
 			
-			System.out.println("Clicked Grid Cell is Row: " + RowClick + "Column: " + ColumnClick);
+			System.out.println("Clicked Grid Cell is Row: " + (RowClick+1) + " Column: " + (ColumnClick+1));
+			
+			if(clickedTile != null){
+				Color c = clickedTile.ColorValue;
+				System.out.println("Tile RGB: (" + c.getRed() + ", " + c.getGreen() + ", " + c.getBlue() + ")");
+			}
 		}
 	}
 	
