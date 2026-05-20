@@ -105,6 +105,13 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 			if(clickedTile != null){
 				Color c = clickedTile.ColorValue;
 				System.out.println("Tile RGB: (" + c.getRed() + ", " + c.getGreen() + ", " + c.getBlue() + ")");
+				
+				// Socket connection (add when needed) *************************
+				//if (Socket != null) {
+					//Socket.sendText("CLICKED," + clickedRow + "," + clickedCol);
+				//}
+			} else{
+				System.out.println("Clicked an empty/null tile slot.");
 			}
 		}
 	}
