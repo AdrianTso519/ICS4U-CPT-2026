@@ -123,11 +123,6 @@ public class ICS4CPT implements ActionListener, MouseMotionListener, MouseListen
 		theField.addActionListener(this);
 		thePanel.add(theField);
 		
-		//button stuff
-		theButton.setBounds(980,400,300,100);
-		theButton.addActionListener(this);
-		thePanel.add(theButton);
-		
 		// grid assets
 		CSVGrid("colors.csv");
 		
