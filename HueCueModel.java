@@ -27,6 +27,13 @@ public class HueCueModel{
 		}
 	}
 
+	public int[] generateTargetTile(){
+		 int[] RandomRowCol = new int[2]; 
+		// Random Row
+		RandomRowCol[0] = (int)(Math.random() * 16) + 1;
+		RandomRowCol[1] = (int)(Math.random() * 30) + 1;
+		return RandomRowCol;
+	}
 	
 	public ColourTile getTile(int row, int col){
 		return fullColourGrid[row][col];
