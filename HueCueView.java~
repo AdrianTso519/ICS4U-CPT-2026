@@ -170,11 +170,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theGamePanel.add(theField);
 
 		// Main Menu
-		theHost.setBounds(590, 200, 100, 25);
-		theJoin.setBounds(590, 250, 100, 25);
-		theHelp.setBounds(590, 300, 100, 25);
-		theAbout.setBounds(590, 350, 100, 25);
-		theQuit.setBounds(590, 400, 100, 25);
+		theHost.setBounds(615, 200, 50, 25);
+		theJoin.setBounds(615, 250, 50, 25);
+		theHelp.setBounds(615, 300, 50, 25);
+		theAbout.setBounds(615, 350, 50, 25);
+		theQuit.setBounds(615, 400, 50, 25);
 
 		theMenuPanel.add(theHost);
 		theMenuPanel.add(theJoin);
