@@ -24,6 +24,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JButton theHelp = new JButton("Help");
 	JButton theAbout = new JButton("About");
 	JButton theQuit = new JButton("Quit");
+	Font fntButton = new Font("Impact", 0, 25);
+	Font fntTitle = new Font("Impact", 0, 50);
 	JLabel theTitleScreen = new JLabel("Hues & Clues");
 	JComponent MainMenu[];
 
@@ -88,6 +90,26 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
 			theArea.append(strLine + "\n");
+		}else if(evt.getSource() == theHost){
+			setHostVisible(true);
+			setMainVisible(false);
+		}else if(evt.getSource() == theJoin){
+			setJoinVisible(true);
+			setMainVisible(false);
+		}else if(evt.getSource() == theHelp){
+			setHelpVisible(true);
+			setMainVisible(false);
+		}else if(evt.getSource() == theAbout){
+			setAboutVisible(true);
+			setMainVisible(false);
+		}else if(evt.getSource() == theQuit){
+			System.exit(0);
+		}else if(evt.getSource() == theBack){
+			setAboutVisible(false);
+			setHelpVisible(false);
+			setHostVisible(false);
+			setJoinVisible(false);
+			setMainVisible(true);
 		}
 	}
 
@@ -142,6 +164,34 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void mouseClicked(MouseEvent evt) {
 	}
 
+	// Methods to make the menus visible/invisible
+	public void setMainVisible(boolean blnVisible){
+		for(JComponent c:MainMenu){
+			c.setVisible(blnVisible);
+		}
+	}
+	public void setHostVisible(boolean blnVisible){
+		for(JComponent c:HostMenu){
+			c.setVisible(blnVisible);
+		}
+	}
+	public void setJoinVisible(boolean blnVisible){
+		for(JComponent c:JoinMenu){
+			c.setVisible(blnVisible);
+		}
+	}
+	public void setHelpVisible(boolean blnVisible){
+		for(JComponent c:HelpMenu){
+			c.setVisible(blnVisible);
+		}
+	}
+	public void setAboutVisible(boolean  blnVisible){
+		for(JComponent c:AboutMenu){
+			c.setVisible(blnVisible);
+		}
+	}
+
+
 	// Constructor
 	public HueCueView() {
 
@@ -170,19 +220,73 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theGamePanel.add(theField);
 
 		// Main Menu
-		theHost.setBounds(615, 200, 50, 25);
-		theJoin.setBounds(615, 250, 50, 25);
-		theHelp.setBounds(615, 300, 50, 25);
-		theAbout.setBounds(615, 350, 50, 25);
-		theQuit.setBounds(615, 400, 50, 25);
+		// set fonts for main menu JComponents
+		theHost.setFont(fntButton);
+		theJoin.setFont(fntButton);
+		theHelp.setFont(fntButton);
+		theAbout.setFont(fntButton);
+		theQuit.setFont(fntButton);
+		theTitleScreen.setFont(fntTitle);
 
+		// set bounds of main menu JComponents
+		theHost.setBounds(615, 250, 100, 50);
+		theJoin.setBounds(615, 325, 100, 50);
+		theHelp.setBounds(615, 400, 100, 50);
+		theAbout.setBounds(615, 475, 100, 50);
+		theQuit.setBounds(615, 550, 100, 50);
+		theTitleScreen.setBounds(525, 75, 350, 75);
+
+		// add the buttons to the menu panel
 		theMenuPanel.add(theHost);
 		theMenuPanel.add(theJoin);
 		theMenuPanel.add(theHelp);
 		theMenuPanel.add(theAbout);
 		theMenuPanel.add(theQuit);
+		theMenuPanel.add(theTitleScreen);
+
+		// make the buttons invisible (just the text)
+		theHost.setOpaque(false);
+		theHost.setContentAreaFilled(false);
+		theHost.setBorderPainted(false);
+		theJoin.setOpaque(false);
+		theJoin.setContentAreaFilled(false);
+		theJoin.setBorderPainted(false);
+		theHelp.setOpaque(false);
+		theHelp.setContentAreaFilled(false);
+		theHelp.setBorderPainted(false);
+		theAbout.setOpaque(false);
+		theAbout.setContentAreaFilled(false);
+		theAbout.setBorderPainted(false);
+		theQuit.setOpaque(false);
+		theQuit.setContentAreaFilled(false);
+		theQuit.setBorderPainted(false);
+
+		// add a listener to the buttons
+		theHost.addActionListener(this);
+		theJoin.addActionListener(this);
+		theHelp.addActionListener(this);
+		theAbout.addActionListener(this);
+		theQuit.addActionListener(this);
+		// orginize the buttons into an array (to make the JComponents visible/invisible)
+		MainMenu = new JComponent[]{
+		theHost, theJoin, theHelp, theAbout, theQuit
+		};
+		
+
 
 		// Host Menu
+		// set fonts
+		theWaitingRoom.setFont(fntTitle);
+		// set bounds
+		theWaitingRoom.setBounds(525, 75, 350, 75);
+		
+		// add to the menu panel
+
+		// make buttons invisible
+
+		// add action listener to buttons
+
+		// orginize to the buttons to into and array
 
 		// Join Menu
 
