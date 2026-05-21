@@ -6,11 +6,9 @@
 // Description: 	An online version of the Hues and Cues board game 
 //******************************************************************************
 
-import java.io.*;
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
-import javax.swing.event.*;
+import javax.swing.*;
 
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener{
 	
@@ -19,12 +17,60 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	GamePanel thePanel;
 	Timer theTimer = new Timer(1000/60, this);
 	
-	// Game buttons
+	
+	// Main Menu
+	JButton theHost = new JButton("Host");
+	JButton theJoin = new JButton("Join");
+	JButton theHelp = new JButton("Help");
+	JButton theAbout = new JButton("About");
+	JButton theQuit = new JButton("Quit");
+	JLabel theTitleScreen = new JLabel("Hues & Clues");
+	JComponent MainMenu[];
+
+	// Host Menu/Waiting Room
+	JLabel theWaitingRoom = new JLabel("Waiting...");
+	JLabel theIP = new JLabel(/*Insert IP and port number Here */);
+	JButton theStart = new JButton("Start");
 	JTextArea theArea = new JTextArea();
 	JScrollPane theScroll = new JScrollPane(theArea);
 	JTextField theField = new JTextField();
-	JButton theButton = new JButton("Connect");
-	
+	JButton theBack = new JButton("Back");
+	JComponent HostMenu[];
+
+	// Join Menu
+	JLabel theJoinTitle = new JLabel("JOIN");
+	JTextField theIPInput = new JTextField();
+	JButton theConnect = new JButton("Connect");
+	JComponent JoinMenu[];
+	// use theBack to go back to main menu
+
+	// Help Menu
+	JLabel theHelpTitle = new JLabel("HELP");
+	JLabel theHelpText = new JLabel(/*insert game explanation here*/);
+	JComponent HelpMenu[];
+	// use theBack to go back to main menu
+
+
+	// About Menu
+	JLabel theAboutTitle = new JLabel("About");
+	JLabel theAboutText = new JLabel(/*insert about text here */);
+	JComponent AboutMenu[];
+	// use theBack to go back to main menu
+
+
+	// Game Menu
+	// use the same text area
+	// use the same text field
+	JLabel theP1Points = new JLabel("Player 1: " /*Add variable of player 1 points */);
+	JLabel theP2Points = new JLabel("Player 2: " /*Add variable of player 2 points */);
+	JLabel theP3Points = new JLabel("Player 2: " /*Add variable of player 3 points */);
+	JLabel theP4Points = new JLabel("Player 4: " /*Add variable of player 4 points */);
+	JComponent GameMenu[];
+
+
+
+
+
 	// Network Connection Properties
 	SuperSocketMaster Socket = null;
 
@@ -38,11 +84,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			Socket.sendText(theField.getText());
 			theField.setText("");
 		// Button Triggered
-		}else if(evt.getSource() == theButton){
+		}else if(evt.getSource() == theConnect){
 			System.out.println("button event triggered");
 			Socket = new SuperSocketMaster("10.8.49.90", 6112, this);
 			Socket.connect();
-			theButton.setEnabled(false);
+			theConnect.setEnabled(false);
 		// Socket triggered
 		}else if(evt.getSource() == Socket){
 			System.out.println("Socket event triggered");
