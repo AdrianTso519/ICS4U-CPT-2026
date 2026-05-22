@@ -114,7 +114,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 		}else if(evt.getSource() == theJoin){
 			theJoinPanel.add(theBack);
-			theFrame.setContentPane(theJoin);
+			theFrame.setContentPane(theJoinPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
 			
@@ -312,7 +312,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		// set bounds
 		theWaitingRoom.setBounds(0, 75, 1280, 75);
-		theWaitPanel.add(theBack);
 		
 		// add to the menu panel
 
@@ -331,9 +330,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theJoinTitle.setFont(fntTitle);
 		theJoinTitle.setForeground(Color.white);
 
-		theJoinTitle.setBounds(0, 75, 1280, 75);
-		
-		theJoinPanel.add(theBack);	
+		theJoinTitle.setBounds(0, 75, 1280, 75);	
 
 		// Help Menu
 		theHelpPanel.add(theHelpTitle);
@@ -341,8 +338,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theHelpTitle.setForeground(Color.white);
 
 		theHelpTitle.setBounds(0, 75, 1280, 75);
-		
-		theHelpPanel.add(theBack);		
 		
 		// About Menu
 		theAboutPanel = new GeneralPanel();
@@ -353,9 +348,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theAboutTitle.setFont(fntTitle);
 		theAboutTitle.setForeground(Color.white);
 
-		theAboutTitle.setBounds(0, 75, 1280, 75);
-		
-		theAboutPanel.add(theBack);	
+		theAboutTitle.setBounds(0, 75, 1280, 75);	
 
 		// Game Menu
 
