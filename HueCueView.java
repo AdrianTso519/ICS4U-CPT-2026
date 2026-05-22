@@ -8,11 +8,10 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 import java.awt.image.*;
-import java.awt.Graphics2D;
 import java.io.*;
 import javax.imageio.*;
+import javax.swing.*;
 
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
 
@@ -286,6 +285,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theBack.setContentAreaFilled(false);
 		theBack.setBorderPainted(false);
 
+		// set the text to the color white
+		theHost.setForeground(Color.white);
+		theJoin.setForeground(Color.white);
+		theHelp.setForeground(Color.white);
+		theAbout.setForeground(Color.white);
+		theQuit.setForeground(Color.white);
+		theBack.setForeground(Color.white);
+		theTitleScreen.setForeground(Color.white);
+
+
 		// add a listener to the buttons
 		theHost.addActionListener(this);
 		theJoin.addActionListener(this);
@@ -303,6 +312,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Host Menu
 		// set fonts
 		theWaitingRoom.setFont(fntTitle);
+		theWaitingRoom.setForeground(Color.white);
+
 		// set bounds
 		theWaitingRoom.setBounds(525, 75, 350, 75);
 		
@@ -319,6 +330,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Help Menu
 		theHelpPanel.add(theHelpTitle);
 		theHelpTitle.setFont(fntTitle);
+		theHelpTitle.setForeground(Color.white);
+
 		theHelpTitle.setBounds(0, 75, 1280, 75);
 		
 		theHelpPanel.add(theBack);		
