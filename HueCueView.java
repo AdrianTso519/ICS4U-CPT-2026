@@ -26,7 +26,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JButton theQuit = new JButton("Quit");
 	Font fntButton = new Font("Impact", 0, 25);
 	Font fntTitle = new Font("Impact", 0, 50);
-	JLabel theTitleScreen = new JLabel("Hues & Clues");
+	JLabel theTitleScreen = new JLabel("Hues & Cues");
 	JComponent MainMenu[];
 
 	// Host Menu/Waiting Room
@@ -75,7 +75,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Mandatory Methods
 	public void actionPerformed(ActionEvent evt) {
 		// Field triggered
-		if (evt.getSource() == theField) {
+		if(evt.getSource() == theTimer){
+			theGamePanel.repaint();
+		}else if (evt.getSource() == theField) {
 			System.out.println("Field event triggered");
 			Socket.sendText(theField.getText());
 			theField.setText("");
@@ -142,6 +144,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Convert coordinates to array (rows and columns)
 		int ColumnClick = (MouseX - StartX) / TileWidth;
 		int RowClick = (MouseY - StartY) / TileHeight;
+		if (RowClick >= 0 && RowClick < 16 && ColumnClick >= 0 && ColumnClick < 30) {
+			theGamePanel.passClickPos(ColumnClick, RowClick);
+		}else{
+			// Draws the rectangle out of the screen if what you clicked isn't part of the grid
+			theGamePanel.passClickPos(-100, -100);
+		}
 
 		// Check to make sure click is inside grid boundaries
 		if (RowClick >= 0 && RowClick < 16 && ColumnClick >= 0 && ColumnClick < 30) {
@@ -195,7 +203,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Constructor
 	public HueCueView() {
 
-		// CONNECT MODEL (ADDED ONLY)
 		model = new HueCueModel();
 		model.CSVGrid("colors.csv");
 
@@ -298,7 +305,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		// Frame
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		theFrame.setContentPane(theMenuPanel);
+		// theFrame.setContentPane(theMenuPanel);
+		theFrame.setContentPane(theGamePanel);
+		theTimer.start();
 		theFrame.pack();
 		theFrame.setResizable(false);
 		theFrame.setVisible(true);
@@ -310,6 +319,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		int tileHeight = 32;
 		int GridStartX = 0;
 		int GridStartY = 0;
+		int ColumnClick;
+		int RowClick;
 
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
@@ -343,6 +354,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 					g2.drawRect(x, y, tileWidth, tileHeight);
 				}
 			}
+			
+			// Highlights the selected tile (TEMPORARY)
+			// Will switch to game a game piece later
+			g2.setColor(Color.GREEN);
+			g2.setStroke(new BasicStroke(3));
+			g2.drawRect(this.ColumnClick*tileHeight,this.RowClick*tileWidth,tileWidth,tileHeight);
+		}
+		public void passClickPos(int ColumnClick, int RowClick){
+			this.ColumnClick = ColumnClick;
+			this.RowClick = RowClick;
 		}
 	}
 
