@@ -283,8 +283,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theQuit.setForeground(Color.white);
 		theBack.setForeground(Color.white);
 		theTitleScreen.setForeground(Color.white);
-
-
+		
 		// add a listener to the buttons
 		theHost.addActionListener(this);
 		theJoin.addActionListener(this);
@@ -296,10 +295,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		MainMenu = new JComponent[]{
 		theHost, theJoin, theHelp, theAbout, theQuit
 		};
-		
 
-
-		// Host Menu
+	// Host Menu
 		// set fonts
 
 		theWaitPanel = new GeneralPanel();
@@ -331,6 +328,22 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theJoinTitle.setForeground(Color.white);
 
 		theJoinTitle.setBounds(0, 75, 1280, 75);	
+		
+		// IP Input Field Setup
+		theIPInput.setFont(new Font("Arial", Font.PLAIN, 24));
+		theIPInput.setHorizontalAlignment(JTextField.CENTER);
+		theIPInput.setBounds(490, 250, 300, 150); 
+		theJoinPanel.add(theIPInput);
+
+		// Connect Button Setup
+		theConnect.setFont(fntButton);
+		theConnect.setForeground(Color.white);
+		theConnect.setOpaque(false);
+		theConnect.setContentAreaFilled(false);
+		theConnect.setBorderPainted(false);
+		theConnect.setBounds(540, 450, 200, 50); 
+		theConnect.addActionListener(this); 
+		theJoinPanel.add(theConnect);
 
 		// Help Menu
 		theHelpPanel.add(theHelpTitle);
