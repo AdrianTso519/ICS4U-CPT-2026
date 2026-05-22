@@ -16,9 +16,6 @@ public class HueCueModel{
 	// Colour grid Array
 	private ColourTile[][] fullColourGrid = new ColourTile[16][30];
 	
-	// Game state
-	int GameState = 0;
-	
 	// Colour values 
 	public class ColourTile{
 		Color ColorValue;
