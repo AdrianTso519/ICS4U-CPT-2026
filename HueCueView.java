@@ -20,6 +20,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	GamePanel theGamePanel;
 	GeneralPanel theMenuPanel;
 	GeneralPanel theHelpPanel;
+	GeneralPanel theAboutPanel;
+	GeneralPanel theJoinPanel;
+	GeneralPanel theWaitPanel; 
+
 	Timer theTimer = new Timer(1000 / 60, this);
 
 	// Main Menu
@@ -28,8 +32,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JButton theHelp = new JButton("Help");
 	JButton theAbout = new JButton("About");
 	JButton theQuit = new JButton("Quit");
-	Font fntButton = new Font("Impact", 0, 25);
-	Font fntTitle = new Font("Impact", 0, 50);
+	Font fntButton = new Font("Impact", 0, 30);
+	Font fntTitle = new Font("Impact", 0, 75);
 	JLabel theTitleScreen = new JLabel("Hues & Cues", SwingConstants.CENTER);
 	JComponent MainMenu[];
 
@@ -97,27 +101,20 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			String strLine = Socket.readText();
 			theArea.append(strLine + "\n");
 		}else if(evt.getSource() == theHost){
-			setHostVisible(true);
-			setMainVisible(false);
+			theFrame.setContentPane(theWaitPanel);
+			theFrame.revalidate();
 		}else if(evt.getSource() == theJoin){
-			setJoinVisible(true);
-			setMainVisible(false);
+			theFrame.setContentPane(theJoin);
+			theFrame.revalidate();
 		}else if(evt.getSource() == theHelp){
-			//setHelpVisible(true);
-			//setMainVisible(false);
 			theFrame.setContentPane(theHelpPanel);
 			theFrame.revalidate();
 		}else if(evt.getSource() == theAbout){
-			setAboutVisible(true);
-			setMainVisible(false);
+			theFrame.setContentPane(theAbout);
+			theFrame.revalidate();
 		}else if(evt.getSource() == theQuit){
 			System.exit(0);
 		}else if(evt.getSource() == theBack){
-			//setAboutVisible(false);
-			//setHelpVisible(false);
-			//setHostVisible(false);
-			//setJoinVisible(false);
-			//setMainVisible(true);
 			theFrame.setContentPane(theMenuPanel);
 			theFrame.revalidate();
 		}
@@ -180,33 +177,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void mouseClicked(MouseEvent evt) {
 	}
 
-	// Methods to make the menus visible/invisible
-	public void setMainVisible(boolean blnVisible){
-		for(JComponent c:MainMenu){
-			c.setVisible(blnVisible);
-		}
-	}
-	public void setHostVisible(boolean blnVisible){
-		for(JComponent c:HostMenu){
-			c.setVisible(blnVisible);
-		}
-	}
-	public void setJoinVisible(boolean blnVisible){
-		for(JComponent c:JoinMenu){
-			c.setVisible(blnVisible);
-		}
-	}
-	public void setHelpVisible(boolean blnVisible){
-		for(JComponent c:HelpMenu){
-			c.setVisible(blnVisible);
-		}
-	}
-	public void setAboutVisible(boolean  blnVisible){
-		for(JComponent c:AboutMenu){
-			c.setVisible(blnVisible);
-		}
-	}
-
 
 	// Constructor
 	public HueCueView() {
@@ -249,12 +219,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theBack.setFont(fntButton);
 
 		// set bounds of main menu JComponents
-		theHost.setBounds(590, 250, 100, 50);
-		theJoin.setBounds(590, 325, 100, 50);
-		theHelp.setBounds(590, 400, 100, 50);
-		theAbout.setBounds(590, 475, 100, 50);
-		theQuit.setBounds(590, 550, 100, 50);
-		theTitleScreen.setBounds(0, 75, 1280, 75);
+		theHost.setBounds(570, 250, 140, 50);
+		theJoin.setBounds(570, 325, 140, 50);
+		theHelp.setBounds(570, 400, 140, 50);
+		theAbout.setBounds(570, 475, 140, 50);
+		theQuit.setBounds(570, 550, 140, 50);
+		theTitleScreen.setBounds(0, 75, 1280, 80);
 		theBack.setBounds(590, 550, 100, 50);
 
 		// add the buttons to the menu panel
@@ -311,11 +281,18 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		// Host Menu
 		// set fonts
+
+		theWaitPanel = new GeneralPanel();
+		theWaitPanel.setLayout(null);
+		theWaitPanel.setPreferredSize(new Dimension(1280, 720));
+
+		theWaitPanel.add(theWaitingRoom);
 		theWaitingRoom.setFont(fntTitle);
 		theWaitingRoom.setForeground(Color.white);
 
 		// set bounds
-		theWaitingRoom.setBounds(525, 75, 350, 75);
+		theWaitingRoom.setBounds(0, 75, 1280, 75);
+		theWaitPanel.add(theBack);
 		
 		// add to the menu panel
 
@@ -326,6 +303,17 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// orginize to the buttons to into and array
 
 		// Join Menu
+		theJoinPanel = new GeneralPanel();
+		theJoinPanel.setLayout(null);
+		theJoinPanel.setPreferredSize(new Dimension(1280, 720));
+
+		theJoinPanel.add(theJoinTitle);
+		theJoinTitle.setFont(fntTitle);
+		theJoinTitle.setForeground(Color.white);
+
+		theJoinTitle.setBounds(0, 75, 1280, 75);
+		
+		theJoinPanel.add(theBack);	
 
 		// Help Menu
 		theHelpPanel.add(theHelpTitle);
@@ -337,6 +325,17 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theHelpPanel.add(theBack);		
 		
 		// About Menu
+		theAboutPanel = new GeneralPanel();
+		theAboutPanel.setLayout(null);
+		theAboutPanel.setPreferredSize(new Dimension(1280, 720));
+
+		theAboutPanel.add(theAboutTitle);
+		theAboutTitle.setFont(fntTitle);
+		theAboutTitle.setForeground(Color.white);
+
+		theAboutTitle.setBounds(0, 75, 1280, 75);
+		
+		theAboutPanel.add(theBack);	
 
 		// Game Menu
 
