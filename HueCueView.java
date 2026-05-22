@@ -9,6 +9,10 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.awt.image.*;
+import java.awt.Graphics2D;
+import java.io.*;
+import javax.imageio.*;
 
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
 
@@ -16,6 +20,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JFrame theFrame = new JFrame("CPT");
 	GamePanel theGamePanel;
 	JPanel theMenuPanel;
+	JPanel theHelpPanel;
 	Timer theTimer = new Timer(1000 / 60, this);
 
 	// Main Menu
@@ -26,11 +31,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JButton theQuit = new JButton("Quit");
 	Font fntButton = new Font("Impact", 0, 25);
 	Font fntTitle = new Font("Impact", 0, 50);
-	JLabel theTitleScreen = new JLabel("Hues & Cues");
+	JLabel theTitleScreen = new JLabel("Hues & Cues", SwingConstants.CENTER);
 	JComponent MainMenu[];
 
 	// Host Menu/Waiting Room
-	JLabel theWaitingRoom = new JLabel("Waiting...");
+	JLabel theWaitingRoom = new JLabel("Waiting...", SwingConstants.CENTER);
 	JLabel theIP = new JLabel(/* Insert IP and port number Here */);
 	JButton theStart = new JButton("Start");
 	JTextArea theArea = new JTextArea();
@@ -40,20 +45,20 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JComponent HostMenu[];
 
 	// Join Menu
-	JLabel theJoinTitle = new JLabel("JOIN");
+	JLabel theJoinTitle = new JLabel("Join", SwingConstants.CENTER);
 	JTextField theIPInput = new JTextField();
 	JButton theConnect = new JButton("Connect");
 	JComponent JoinMenu[];
 	// use theBack to go back to main menu
 
 	// Help Menu
-	JLabel theHelpTitle = new JLabel("HELP");
+	JLabel theHelpTitle = new JLabel("Help", SwingConstants.CENTER);
 	JLabel theHelpText = new JLabel(/* insert game explanation here */);
 	JComponent HelpMenu[];
 	// use theBack to go back to main menu
 
 	// About Menu
-	JLabel theAboutTitle = new JLabel("About");
+	JLabel theAboutTitle = new JLabel("About", SwingConstants.CENTER);
 	JLabel theAboutText = new JLabel(/* insert about text here */);
 	JComponent AboutMenu[];
 	// use theBack to go back to main menu
@@ -99,19 +104,23 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			setJoinVisible(true);
 			setMainVisible(false);
 		}else if(evt.getSource() == theHelp){
-			setHelpVisible(true);
-			setMainVisible(false);
+			//setHelpVisible(true);
+			//setMainVisible(false);
+			theFrame.setContentPane(theHelpPanel);
+			theFrame.revalidate();
 		}else if(evt.getSource() == theAbout){
 			setAboutVisible(true);
 			setMainVisible(false);
 		}else if(evt.getSource() == theQuit){
 			System.exit(0);
 		}else if(evt.getSource() == theBack){
-			setAboutVisible(false);
-			setHelpVisible(false);
-			setHostVisible(false);
-			setJoinVisible(false);
-			setMainVisible(true);
+			//setAboutVisible(false);
+			//setHelpVisible(false);
+			//setHostVisible(false);
+			//setJoinVisible(false);
+			//setMainVisible(true);
+			theFrame.setContentPane(theMenuPanel);
+			theFrame.revalidate();
 		}
 	}
 
@@ -216,6 +225,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theMenuPanel = new JPanel();
 		theMenuPanel.setLayout(null);
 		theMenuPanel.setPreferredSize(new Dimension(1280, 720));
+		
+		theHelpPanel = new JPanel();
+		theHelpPanel.setLayout(null);
+		theHelpPanel.setPreferredSize(new Dimension(1280, 720));
 
 		// Text Area
 		theScroll.setBounds(960, 0, 320, 620);
@@ -234,14 +247,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theAbout.setFont(fntButton);
 		theQuit.setFont(fntButton);
 		theTitleScreen.setFont(fntTitle);
+		theBack.setFont(fntButton);
 
 		// set bounds of main menu JComponents
-		theHost.setBounds(615, 250, 100, 50);
-		theJoin.setBounds(615, 325, 100, 50);
-		theHelp.setBounds(615, 400, 100, 50);
-		theAbout.setBounds(615, 475, 100, 50);
-		theQuit.setBounds(615, 550, 100, 50);
-		theTitleScreen.setBounds(525, 75, 350, 75);
+		theHost.setBounds(590, 250, 100, 50);
+		theJoin.setBounds(590, 325, 100, 50);
+		theHelp.setBounds(590, 400, 100, 50);
+		theAbout.setBounds(590, 475, 100, 50);
+		theQuit.setBounds(590, 550, 100, 50);
+		theTitleScreen.setBounds(0, 75, 1280, 75);
+		theBack.setBounds(590, 550, 100, 50);
 
 		// add the buttons to the menu panel
 		theMenuPanel.add(theHost);
@@ -267,6 +282,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theQuit.setOpaque(false);
 		theQuit.setContentAreaFilled(false);
 		theQuit.setBorderPainted(false);
+		theBack.setOpaque(false);
+		theBack.setContentAreaFilled(false);
+		theBack.setBorderPainted(false);
 
 		// add a listener to the buttons
 		theHost.addActionListener(this);
@@ -274,6 +292,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theHelp.addActionListener(this);
 		theAbout.addActionListener(this);
 		theQuit.addActionListener(this);
+		theBack.addActionListener(this);
 		// orginize the buttons into an array (to make the JComponents visible/invisible)
 		MainMenu = new JComponent[]{
 		theHost, theJoin, theHelp, theAbout, theQuit
@@ -298,16 +317,21 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Join Menu
 
 		// Help Menu
-
+		theHelpPanel.add(theHelpTitle);
+		theHelpTitle.setFont(fntTitle);
+		theHelpTitle.setBounds(0, 75, 1280, 75);
+		
+		theHelpPanel.add(theBack);		
+		
 		// About Menu
 
 		// Game Menu
 
 		// Frame
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// theFrame.setContentPane(theMenuPanel);
-		theFrame.setContentPane(theGamePanel);
-		theTimer.start();
+		theFrame.setContentPane(theMenuPanel);
+		// theFrame.setContentPane(theGamePanel);
+		// theTimer.start();
 		theFrame.pack();
 		theFrame.setResizable(false);
 		theFrame.setVisible(true);
@@ -361,9 +385,51 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			g2.setStroke(new BasicStroke(3));
 			g2.drawRect(this.ColumnClick*tileHeight,this.RowClick*tileWidth,tileWidth,tileHeight);
 		}
+		
+		// Method used to pass position of where you clicked
 		public void passClickPos(int ColumnClick, int RowClick){
 			this.ColumnClick = ColumnClick;
 			this.RowClick = RowClick;
+		}		
+	}
+
+	public class GeneralPanel extends JPanel{
+		
+		BufferedImage imgBG = null;
+		
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			g.drawImage(imgBG, 0, 0, null);
+		}
+		
+		// Method used to load images
+		public BufferedImage loadImage(String strFileName){  
+			// Try to read from jar file
+			InputStream imgClass = null;
+			imgClass = this.getClass().getResourceAsStream(strFileName);
+
+			if(imgClass != null){
+				try{
+					return ImageIO.read(imgClass);
+				}catch(IOException e){
+				}
+			}
+
+			// Try to read from local file
+			try{
+				BufferedImage theImg = ImageIO.read(new File(strFileName));
+				return theImg;
+			}catch(IOException e){
+				System.out.println("Unable to load image: " + strFileName);
+				return null;
+			}
+		}
+		
+		// Constructor
+		public GeneralPanel(){
+			super();
+			// Load grid image
+			imgBG = loadImage("Background.jpg");
 		}
 	}
 
