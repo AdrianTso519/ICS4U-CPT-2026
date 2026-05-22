@@ -110,7 +110,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.setContentPane(theHelpPanel);
 			theFrame.revalidate();
 		}else if(evt.getSource() == theAbout){
-			theFrame.setContentPane(theAbout);
+			theFrame.setContentPane(theAboutPanel);
 			theFrame.revalidate();
 		}else if(evt.getSource() == theQuit){
 			System.exit(0);
