@@ -87,10 +87,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Field triggered
 		if(evt.getSource() == theTimer){
 			theGamePanel.repaint();
+			
 		}else if (evt.getSource() == theField) {
 			System.out.println("Field event triggered");
 			Socket.sendText(theField.getText());
 			theField.setText("");
+			
 			// Button Triggered
 		} else if (evt.getSource() == theConnect) {
 			System.out.println("button event triggered");
@@ -98,27 +100,43 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			Socket.connect();
 			theConnect.setEnabled(false);
 			// Socket triggered
+			
 		} else if (evt.getSource() == Socket) {
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
 			theArea.append(strLine + "\n");
+			
 		}else if(evt.getSource() == theHost){
+			theWaitPanel.add(theBack);
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
+			theFrame.repaint();
+			
 		}else if(evt.getSource() == theJoin){
+			theJoinPanel.add(theBack);
 			theFrame.setContentPane(theJoin);
 			theFrame.revalidate();
+			theFrame.repaint();
+			
 		}else if(evt.getSource() == theHelp){
+			theHelpPanel.add(theBack);
 			theFrame.setContentPane(theHelpPanel);
 			theFrame.revalidate();
+			theFrame.repaint();
+			
 		}else if(evt.getSource() == theAbout){
+			theAboutPanel.add(theBack);
 			theFrame.setContentPane(theAboutPanel);
 			theFrame.revalidate();
+			theFrame.repaint();
+			
 		}else if(evt.getSource() == theQuit){
 			System.exit(0);
+			
 		}else if(evt.getSource() == theBack){
 			theFrame.setContentPane(theMenuPanel);
 			theFrame.revalidate();
+			theFrame.repaint();
 		}
 	}
 
