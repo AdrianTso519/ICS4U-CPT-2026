@@ -19,8 +19,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Properties
 	JFrame theFrame = new JFrame("CPT");
 	GamePanel theGamePanel;
-	JPanel theMenuPanel;
-	JPanel theHelpPanel;
+	GeneralPanel theMenuPanel;
+	GeneralPanel theHelpPanel;
 	Timer theTimer = new Timer(1000 / 60, this);
 
 	// Main Menu
@@ -222,11 +222,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theGamePanel.addMouseListener(this);
 		theGamePanel.addMouseMotionListener(this);
 
-		theMenuPanel = new JPanel();
+		theMenuPanel = new GeneralPanel();
 		theMenuPanel.setLayout(null);
 		theMenuPanel.setPreferredSize(new Dimension(1280, 720));
 		
-		theHelpPanel = new JPanel();
+		theHelpPanel = new GeneralPanel();
 		theHelpPanel.setLayout(null);
 		theHelpPanel.setPreferredSize(new Dimension(1280, 720));
 
@@ -429,7 +429,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		public GeneralPanel(){
 			super();
 			// Load grid image
-			imgBG = loadImage("Background.jpg");
+			imgBG = loadImage("Background.png");
 		}
 	}
 
