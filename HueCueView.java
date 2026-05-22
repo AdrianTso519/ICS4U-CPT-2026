@@ -73,6 +73,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JLabel theP2Points = new JLabel("Player 2: " /* Add variable of player 2 points */);
 	JLabel theP3Points = new JLabel("Player 2: " /* Add variable of player 3 points */);
 	JLabel theP4Points = new JLabel("Player 4: " /* Add variable of player 4 points */);
+	JLabel theP5Points = new JLabel("Player 5: " /* Add variable of player 4 points */);
+	JLabel theP6Points = new JLabel("Player 6: " /* Add variable of player 4 points */);
 	JComponent GameMenu[];
 
 	// Network Connection Properties
