@@ -46,6 +46,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JTextField theField = new JTextField();
 	JButton theBack = new JButton("Back");
 	JComponent HostMenu[];
+	
+	//Waiting room stuff
+	JTextArea waitChatArea = new JTextArea();
+	JScrollPane waitChatScroll = new JScrollPane(waitChatArea);
+	JTextField waitChatField = new JTextField();
 
 	// Join Menu
 	JLabel theJoinTitle = new JLabel("Join", SwingConstants.CENTER);
@@ -93,14 +98,45 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			Socket.sendText(theField.getText());
 			theField.setText("");
 			
+		} else if (evt.getSource() == waitChatField) {
+			System.out.println("Lobby chat text sent");
+			if (Socket != null) {
+				Socket.sendText(waitChatField.getText());
+			} else {
+				// Local visual testing fallback if offline
+				waitChatArea.append("You: " + waitChatField.getText() + "\n");
+			}
+			waitChatField.setText("");
+			
 			// Button Triggered
 		} else if (evt.getSource() == theConnect) {
 			System.out.println("button event triggered");
-			Socket = new SuperSocketMaster("10.8.49.90", 6112, this);
-			Socket.connect();
-			theConnect.setEnabled(false);
-			// Socket triggered
 			
+			String targetIP = theIPInput.getText();
+			
+			// Safety check: Don't try connecting if they didn't replace the placeholder
+			if (targetIP.equals("") || targetIP.trim().isEmpty()) {
+				System.out.println("Please enter a valid game code / IP address first!");
+				return;
+			}
+
+			System.out.println("Attempting connection to: " + targetIP);
+			
+			// Initialize the connection
+			Socket = new SuperSocketMaster(targetIP, 6112, this);
+			Socket.connect();
+			theConnect.setEnabled(false); // Disable to prevent multiple click spam
+
+			// --- TRANSPORT TO THE WAITING ROOM ---
+			// Move the back button to the waiting room panel dynamically
+			theWaitPanel.add(theBack);
+			
+			// Swap the main frame content pane to show the wait lobby
+			theFrame.setContentPane(theWaitPanel);
+			theFrame.revalidate();
+			theFrame.repaint();
+			
+			// Socket triggered
 		} else if (evt.getSource() == Socket) {
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
@@ -309,6 +345,31 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		// set bounds
 		theWaitingRoom.setBounds(0, 75, 1280, 75);
+		
+		waitChatScroll.setBounds(920, 150, 320, 440); 
+		waitChatScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 100), 1)); 
+		waitChatScroll.setOpaque(false);
+		waitChatScroll.getViewport().setOpaque(false); 
+
+		waitChatArea.setEditable(false);
+		waitChatArea.setLineWrap(true);
+		waitChatArea.setWrapStyleWord(true);
+		waitChatArea.setFont(new Font("Arial", Font.PLAIN, 16));
+		waitChatArea.setForeground(Color.white); 
+		waitChatArea.setOpaque(false);
+		waitChatArea.setBackground(new Color(0, 0, 0, 50)); 
+		theWaitPanel.add(waitChatScroll);
+
+		// --- TRANSPARENT INPUT FIELD ---
+		waitChatField.setBounds(920, 600, 320, 40);
+		waitChatField.setFont(new Font("Arial", Font.PLAIN, 16));
+		waitChatField.setForeground(Color.white);
+		waitChatField.setCaretColor(Color.white); 
+		waitChatField.setOpaque(false);
+		waitChatField.setBackground(new Color(0, 0, 0, 80)); 
+		waitChatField.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 150), 1));
+		waitChatField.addActionListener(this); 
+		theWaitPanel.add(waitChatField);
 		
 		// add to the menu panel
 
