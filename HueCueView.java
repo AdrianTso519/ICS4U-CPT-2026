@@ -346,8 +346,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// set bounds
 		theWaitingRoom.setBounds(0, 75, 1280, 75);
 		
-		waitChatScroll.setBounds(920, 150, 320, 440); 
-		waitChatScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 100), 1)); 
+		waitChatScroll.setBounds(920, 0, 360, 600); 
 		waitChatScroll.setOpaque(false);
 		waitChatScroll.getViewport().setOpaque(false); 
 
@@ -361,13 +360,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theWaitPanel.add(waitChatScroll);
 
 		// --- TRANSPARENT INPUT FIELD ---
-		waitChatField.setBounds(920, 600, 320, 40);
+		waitChatField.setBounds(920, 600, 360, 140);
 		waitChatField.setFont(new Font("Arial", Font.PLAIN, 16));
 		waitChatField.setForeground(Color.white);
 		waitChatField.setCaretColor(Color.white); 
 		waitChatField.setOpaque(false);
 		waitChatField.setBackground(new Color(0, 0, 0, 80)); 
-		waitChatField.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 150), 1));
 		waitChatField.addActionListener(this); 
 		theWaitPanel.add(waitChatField);
 		
