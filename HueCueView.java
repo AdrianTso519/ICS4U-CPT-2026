@@ -35,7 +35,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	Font fntButton = new Font("Impact", 0, 30);
 	Font fntTitle = new Font("Impact", 0, 75);
 	JLabel theTitleScreen = new JLabel("Hues & Cues", SwingConstants.CENTER);
-	JComponent MainMenu[];
 
 	// Host Menu/Waiting Room
 	JLabel theWaitingRoom = new JLabel("Waiting...", SwingConstants.CENTER);
@@ -45,7 +44,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JScrollPane theScroll = new JScrollPane(theArea);
 	JTextField theField = new JTextField();
 	JButton theBack = new JButton("Back");
-	JComponent HostMenu[];
+	JLabel thePort  = new JLabel();
+	String strIP = "";
+	int intPort = 6112;
 	
 	//Waiting room stuff
 	JTextArea waitChatArea = new JTextArea();
@@ -56,19 +57,20 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JLabel theJoinTitle = new JLabel("Join", SwingConstants.CENTER);
 	JTextField theIPInput = new JTextField();
 	JButton theConnect = new JButton("Connect");
-	JComponent JoinMenu[];
 	// use theBack to go back to main menu
 
 	// Help Menu
 	JLabel theHelpTitle = new JLabel("Help", SwingConstants.CENTER);
 	JLabel theHelpText = new JLabel(/* insert game explanation here */);
-	JComponent HelpMenu[];
 	// use theBack to go back to main menu
 
 	// About Menu
 	JLabel theAboutTitle = new JLabel("About", SwingConstants.CENTER);
-	JLabel theAboutText = new JLabel(/* insert about text here */);
-	JComponent AboutMenu[];
+	JLabel theAboutAuthor = new JLabel("Created by: Hansel S., Adrian T., Ethan W.");
+	JLabel theAboutDate = new JLabel("Created on: June 9, 2026");
+	JLabel theAboutCourse = new JLabel("Course: ICS4U1");
+	JLabel theAboutTeacher = new JLabel("Teacher: Mr. Cadawas");
+	JLabel theAboutInspirtion = new JLabel("Inspiration: Hues and Cues");
 	// use theBack to go back to main menu
 
 	// Game Menu
@@ -84,6 +86,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// Network Connection Properties
 	SuperSocketMaster Socket = null;
+	SuperSocketMaster Host = null;
 
 	HueCueModel model;
 
@@ -123,7 +126,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.out.println("Attempting connection to: " + targetIP);
 			
 			// Initialize the connection
-			Socket = new SuperSocketMaster(targetIP, 6112, this);
+			Socket = new SuperSocketMaster(targetIP, intPort, this);
 			Socket.connect();
 			theConnect.setEnabled(false); // Disable to prevent multiple click spam
 
@@ -147,6 +150,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
+			Host  = new SuperSocketMaster(intPort, this);
+			strIP = Host.getMyAddress();
+			theIP.setText("IP: " + strIP);
+			thePort.setText("Port: " + intPort);
 			
 		}else if(evt.getSource() == theJoin){
 			theJoinPanel.add(theBack);
@@ -327,10 +334,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theAbout.addActionListener(this);
 		theQuit.addActionListener(this);
 		theBack.addActionListener(this);
-		// orginize the buttons into an array (to make the JComponents visible/invisible)
-		MainMenu = new JComponent[]{
-		theHost, theJoin, theHelp, theAbout, theQuit
-		};
+
 
 	// Host Menu
 		// set fonts
@@ -344,8 +348,21 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theWaitingRoom.setForeground(Color.white);
 
 		// set bounds
-		theWaitingRoom.setBounds(0, 75, 1280, 75);
+		theWaitingRoom.setBounds(0, 75, 920, 75);
 		
+		theIP.setBounds(0, 300, 920, 75);
+		theIP.setFont(fntButton);
+		theIP.setForeground(Color.white);
+		theIP.setHorizontalAlignment(JTextField.CENTER);
+		
+		thePort.setBounds(0, 350, 920, 75);
+		thePort.setFont(fntButton);
+		thePort.setForeground(Color.white);
+		thePort.setHorizontalAlignment(JTextField.CENTER);
+		
+		theWaitPanel.add(thePort);
+		theWaitPanel.add(theIP);
+
 		waitChatScroll.setBounds(920, 0, 360, 600); 
 		waitChatScroll.setOpaque(false);
 		waitChatScroll.getViewport().setOpaque(false); 
