@@ -534,3 +534,4 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		new HueCueView();
 	}
 }
+// a
