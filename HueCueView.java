@@ -47,7 +47,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JButton theBack = new JButton("Back");
 	JLabel thePort  = new JLabel();
 	String strIP = "";
-	int intPort = 6112;
+	int intPort = 6767;
 	
 	//Waiting room stuff
 	JTextArea waitChatArea = new JTextArea();
@@ -141,6 +141,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		} else if (evt.getSource() == Socket) {
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
+			// System.out.println(strLine);
 			theArea.append(strLine + "\n");
 			
 		}else if(evt.getSource() == theHost){
