@@ -124,12 +124,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}
 
 			System.out.println("Attempting connection to: " + targetIP);
+			clientConnect(targetIP);
 			
-			// Initialize the connection
-			Socket = new SuperSocketMaster(targetIP, intPort, this);
-			Socket.connect();
-			theConnect.setEnabled(false); // Disable to prevent multiple click spam
-
 			// --- TRANSPORT TO THE WAITING ROOM ---
 			// Move the back button to the waiting room panel dynamically
 			theWaitPanel.add(theBack);
@@ -150,7 +146,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
-			Host  = new SuperSocketMaster(intPort, this);
+			hostConnect();
 			strIP = Host.getMyAddress();
 			theIP.setText("IP: " + strIP);
 			thePort.setText("Port: " + intPort);
@@ -238,6 +234,19 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	}
 
 	public void mouseClicked(MouseEvent evt) {
+	}
+	
+	public void clientConnect(String targetIP){
+		// Initialize the connection
+		Socket = new SuperSocketMaster(targetIP, intPort, this);
+		Socket.connect();
+		theConnect.setEnabled(false); // Disable to prevent multiple click spam
+
+	}
+	
+	public void hostConnect(){
+		Host  = new SuperSocketMaster(intPort, this);
+		System.out.println("Awaiting connections");
 	}
 
 
