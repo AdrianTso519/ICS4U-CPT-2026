@@ -16,6 +16,7 @@ import javax.swing.*;
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
 
 	// Properties
+	boolean blnHost = true;
 	JFrame theFrame = new JFrame("CPT");
 	GamePanel theGamePanel;
 	GeneralPanel theMenuPanel;
@@ -242,13 +243,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		Socket = new SuperSocketMaster(targetIP, intPort, this);
 		Socket.connect();
 		theConnect.setEnabled(false); // Disable to prevent multiple click spam
+		blnHost = false;
 
 	}
 	
 	public void hostConnect(){
-		Socket = new SuperSocketMaster(intPort, this);
-		Socket.connect();
-		System.out.println("Awaiting connections");
+		if(blnHost == true){
+			Socket = new SuperSocketMaster(intPort, this);
+			Socket.connect();
+			System.out.println("Awaiting connections");
+		}
 	}
 
 
