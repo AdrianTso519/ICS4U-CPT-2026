@@ -147,7 +147,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.revalidate();
 			theFrame.repaint();
 			hostConnect();
-			strIP = Host.getMyAddress();
+			strIP = Socket.getMyAddress();
 			theIP.setText("IP: " + strIP);
 			thePort.setText("Port: " + intPort);
 			
