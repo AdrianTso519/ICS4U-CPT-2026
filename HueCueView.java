@@ -17,6 +17,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// Properties
 	boolean blnHost = true;
+	String username = "Host";
 	JFrame theFrame = new JFrame("CPT");
 	GamePanel theGamePanel;
 	GeneralPanel theMenuPanel;
@@ -109,11 +110,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		} else if (evt.getSource() == waitChatField) {
 			System.out.println("Lobby chat text sent");
 			if (Socket != null) {
-				Socket.sendText(waitChatField.getText());
-				waitChatArea.append("You: " + waitChatField.getText() + "\n");
+				Socket.sendText("<"+this.username+"> "+waitChatField.getText());
+				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
 			} else {
 				// Local visual testing fallback if offline
-				waitChatArea.append("You: " + waitChatField.getText() + "\n");
+				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
 			}
 			waitChatField.setText("");
 			
@@ -122,6 +123,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.out.println("button event triggered");
 			
 			String targetIP = theIPInput.getText();
+			int targetPort = Integer.parseInt(thePortNum.getText());
+			username = theUserName.getText();
 			
 			// Safety check: Don't try connecting if they didn't replace the placeholder
 			if (targetIP.equals("") || targetIP.trim().isEmpty()) {
@@ -130,7 +133,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}
 
 			System.out.println("Attempting connection to: " + targetIP);
-			clientConnect(targetIP);
+			clientConnect(targetIP, targetPort);
 			
 			// --- TRANSPORT TO THE WAITING ROOM ---
 			// Move the back button to the waiting room panel dynamically
@@ -242,9 +245,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void mouseClicked(MouseEvent evt) {
 	}
 	
-	public void clientConnect(String targetIP){
+	public void clientConnect(String targetIP, int targetPort){
 		// Initialize the connection
-		Socket = new SuperSocketMaster(targetIP, intPort, this);
+		Socket = new SuperSocketMaster(targetIP, targetPort, this);
 		Socket.connect();
 		theConnect.setEnabled(false); // Disable to prevent multiple click spam
 		blnHost = false;
@@ -441,12 +444,15 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Join Labels for text fields
 		theIPLabel.setBounds(450, 175, 100, 75);
 		theIPLabel.setFont(fntButton);
+		theIPLabel.setForeground(Color.white);
 		theJoinPanel.add(theIPLabel);
 		thePortLabel.setBounds(425, 275, 100, 75);
 		thePortLabel.setFont(fntButton);
+		thePortLabel.setForeground(Color.white);
 		theJoinPanel.add(thePortLabel);
 		theUserLabel.setBounds(425, 375, 100, 75);
 		theUserLabel.setFont(fntButton);
+		theUserLabel.setForeground(Color.white);
 		theJoinPanel.add(theUserLabel);
 
 		// Connect Button Setup
