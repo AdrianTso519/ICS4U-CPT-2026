@@ -148,7 +148,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		} else if (evt.getSource() == Socket) {
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
-			waitChatArea.append(strLine);
+			waitChatArea.append(strLine+"\n");
 			
 		}else if(evt.getSource() == theHost){
 			theWaitPanel.add(theBack);
