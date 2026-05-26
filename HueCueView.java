@@ -16,7 +16,9 @@ import javax.swing.*;
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
 
 	// Properties
+	int intPlayerCount = 1;
 	boolean blnHost = true;
+	boolean blnJoined = false;
 	String username = "Host";
 	JFrame theFrame = new JFrame("CPT");
 	GamePanel theGamePanel;
@@ -134,6 +136,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 			System.out.println("Attempting connection to: " + targetIP);
 			clientConnect(targetIP, targetPort);
+			Socket.sendText("<JOIN> "+this.username);
+			Socket.sendText("<SYSTEM> "+this.username+" joined the room");
+			blnJoined = true;
 			
 			// --- TRANSPORT TO THE WAITING ROOM ---
 			// Move the back button to the waiting room panel dynamically
@@ -148,7 +153,21 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		} else if (evt.getSource() == Socket) {
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
-			waitChatArea.append(strLine+"\n");
+			// Detection of backend messages like player count, system messages
+			if(strLine.startsWith("<JOIN>")){
+				this.intPlayerCount++;
+				Socket.sendText("<COUNT> "+this.intPlayerCount);
+				System.out.println("<COUNT> "+this.intPlayerCount);
+			}else if(strLine.startsWith("<COUNT>")){
+				this.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
+				System.out.println(this.intPlayerCount+" Players");
+			}else if(strLine.equals("<DISCONNECT>")){
+				this.intPlayerCount--;
+				Socket.sendText("<COUNT> "+this.intPlayerCount);
+				System.out.println("<COUNT> "+this.intPlayerCount);
+			}else{
+				waitChatArea.append(strLine+"\n");
+			}
 			
 		}else if(evt.getSource() == theHost){
 			theWaitPanel.add(theBack);
@@ -182,6 +201,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.exit(0);
 			
 		}else if(evt.getSource() == theBack){
+			if(blnJoined == true){
+				Socket.sendText("<DISCONNECT>");
+				Socket.sendText("<SYSTEM> "+this.username+" left the room");
+				Socket.disconnect();
+			}
 			theFrame.setContentPane(theMenuPanel);
 			theFrame.revalidate();
 			theFrame.repaint();

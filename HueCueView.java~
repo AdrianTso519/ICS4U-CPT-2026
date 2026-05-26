@@ -8,14 +8,26 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
 import javax.swing.*;
 
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
 
 	// Properties
+	int intPlayerCount = 1;
+	boolean blnHost = true;
+	boolean blnJoined = false;
+	String username = "Host";
 	JFrame theFrame = new JFrame("CPT");
 	GamePanel theGamePanel;
-	JPanel theMenuPanel;
+	GeneralPanel theMenuPanel;
+	GeneralPanel theHelpPanel;
+	GeneralPanel theAboutPanel;
+	GeneralPanel theJoinPanel;
+	GeneralPanel theWaitPanel; 
+
 	Timer theTimer = new Timer(1000 / 60, this);
 
 	// Main Menu
@@ -24,36 +36,50 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JButton theHelp = new JButton("Help");
 	JButton theAbout = new JButton("About");
 	JButton theQuit = new JButton("Quit");
-	JLabel theTitleScreen = new JLabel("Hues & Clues");
-	JComponent MainMenu[];
+	Font fntButton = new Font("Impact", 0, 30);
+	Font fntTitle = new Font("Impact", 0, 75);
+	JLabel theTitleScreen = new JLabel("Hues & Cues", SwingConstants.CENTER);
 
 	// Host Menu/Waiting Room
-	JLabel theWaitingRoom = new JLabel("Waiting...");
+	JLabel theWaitingRoom = new JLabel("Waiting...", SwingConstants.CENTER);
 	JLabel theIP = new JLabel(/* Insert IP and port number Here */);
 	JButton theStart = new JButton("Start");
 	JTextArea theArea = new JTextArea();
 	JScrollPane theScroll = new JScrollPane(theArea);
 	JTextField theField = new JTextField();
 	JButton theBack = new JButton("Back");
-	JComponent HostMenu[];
+	JLabel thePort  = new JLabel();
+	String strIP = "";
+	int intPort = 6767;
+	
+	//Waiting room stuff
+	JTextArea waitChatArea = new JTextArea();
+	JScrollPane waitChatScroll = new JScrollPane(waitChatArea);
+	JTextField waitChatField = new JTextField();
 
 	// Join Menu
-	JLabel theJoinTitle = new JLabel("JOIN");
+	JLabel theJoinTitle = new JLabel("Join", SwingConstants.CENTER);
 	JTextField theIPInput = new JTextField();
+	JTextField theUserName = new JTextField();
+	JTextField thePortNum = new JTextField();
+	JLabel theIPLabel = new JLabel("IP:");
+	JLabel theUserLabel = new JLabel("User:");
+	JLabel thePortLabel = new JLabel("Port:");
 	JButton theConnect = new JButton("Connect");
-	JComponent JoinMenu[];
 	// use theBack to go back to main menu
 
 	// Help Menu
-	JLabel theHelpTitle = new JLabel("HELP");
+	JLabel theHelpTitle = new JLabel("Help", SwingConstants.CENTER);
 	JLabel theHelpText = new JLabel(/* insert game explanation here */);
-	JComponent HelpMenu[];
 	// use theBack to go back to main menu
 
 	// About Menu
-	JLabel theAboutTitle = new JLabel("About");
-	JLabel theAboutText = new JLabel(/* insert about text here */);
-	JComponent AboutMenu[];
+	JLabel theAboutTitle = new JLabel("About", SwingConstants.CENTER);
+	JLabel theAboutAuthor = new JLabel("Created by: Hansel S., Adrian T., Ethan W.");
+	JLabel theAboutDate = new JLabel("Created on: June 9, 2026");
+	JLabel theAboutCourse = new JLabel("Course: ICS4U1");
+	JLabel theAboutTeacher = new JLabel("Teacher: Mr. Cadawas");
+	JLabel theAboutInspirtion = new JLabel("Inspiration: Hues and Cues");
 	// use theBack to go back to main menu
 
 	// Game Menu
@@ -63,6 +89,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JLabel theP2Points = new JLabel("Player 2: " /* Add variable of player 2 points */);
 	JLabel theP3Points = new JLabel("Player 2: " /* Add variable of player 3 points */);
 	JLabel theP4Points = new JLabel("Player 4: " /* Add variable of player 4 points */);
+	JLabel theP5Points = new JLabel("Player 5: " /* Add variable of player 4 points */);
+	JLabel theP6Points = new JLabel("Player 6: " /* Add variable of player 4 points */);
 	JComponent GameMenu[];
 
 	// Network Connection Properties
@@ -73,21 +101,113 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Mandatory Methods
 	public void actionPerformed(ActionEvent evt) {
 		// Field triggered
-		if (evt.getSource() == theField) {
+		if(evt.getSource() == theTimer){
+			theGamePanel.repaint();
+			
+		}else if (evt.getSource() == theField) {
 			System.out.println("Field event triggered");
 			Socket.sendText(theField.getText());
 			theField.setText("");
+			
+		} else if (evt.getSource() == waitChatField) {
+			System.out.println("Lobby chat text sent");
+			if (Socket != null) {
+				Socket.sendText("<"+this.username+"> "+waitChatField.getText());
+				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
+			} else {
+				// Local visual testing fallback if offline
+				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
+			}
+			waitChatField.setText("");
+			
 			// Button Triggered
 		} else if (evt.getSource() == theConnect) {
 			System.out.println("button event triggered");
-			Socket = new SuperSocketMaster("10.8.49.90", 6112, this);
-			Socket.connect();
-			theConnect.setEnabled(false);
+			
+			String targetIP = theIPInput.getText();
+			int targetPort = Integer.parseInt(thePortNum.getText());
+			username = theUserName.getText();
+			
+			// Safety check: Don't try connecting if they didn't replace the placeholder
+			if (targetIP.equals("") || targetIP.trim().isEmpty()) {
+				System.out.println("Please enter a valid game code / IP address first!");
+				return;
+			}
+
+			System.out.println("Attempting connection to: " + targetIP);
+			clientConnect(targetIP, targetPort);
+			Socket.sendText("<JOIN> "+this.username);
+			Socket.sendText("<SYSTEM> "+this.username+" joined the room");
+			blnJoined = true;
+			
+			// --- TRANSPORT TO THE WAITING ROOM ---
+			// Move the back button to the waiting room panel dynamically
+			theWaitPanel.add(theBack);
+			
+			// Swap the main frame content pane to show the wait lobby
+			theFrame.setContentPane(theWaitPanel);
+			theFrame.revalidate();
+			theFrame.repaint();
+			
 			// Socket triggered
 		} else if (evt.getSource() == Socket) {
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
-			theArea.append(strLine + "\n");
+			// Detection of backend messages like player count, system messages
+			if(strLine.startsWith("<JOIN>")){
+				this.intPlayerCount++;
+				Socket.sendText("<COUNT> "+this.intPlayerCount);
+				System.out.println("<COUNT> "+this.intPlayerCount);
+			}else if(strLine.startsWith("<COUNT>")){
+				this.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
+				System.out.println(this.intPlayerCount+" Players");
+			}else if(strLine.equals("<DISCONNECT>")){
+				this.intPlayerCount--;
+				Socket.sendText("<COUNT> "+this.intPlayerCount);
+				System.out.println("<COUNT> "+this.intPlayerCount);
+			}else{
+				waitChatArea.append(strLine+"\n");
+			}
+			
+		}else if(evt.getSource() == theHost){
+			theWaitPanel.add(theBack);
+			theFrame.setContentPane(theWaitPanel);
+			theFrame.revalidate();
+			theFrame.repaint();
+			hostConnect();
+			strIP = Socket.getMyAddress();
+			theIP.setText("IP: " + strIP);
+			thePort.setText("Port: " + intPort);
+			
+		}else if(evt.getSource() == theJoin){
+			theJoinPanel.add(theBack);
+			theFrame.setContentPane(theJoinPanel);
+			theFrame.revalidate();
+			theFrame.repaint();
+			
+		}else if(evt.getSource() == theHelp){
+			theHelpPanel.add(theBack);
+			theFrame.setContentPane(theHelpPanel);
+			theFrame.revalidate();
+			theFrame.repaint();
+			
+		}else if(evt.getSource() == theAbout){
+			theAboutPanel.add(theBack);
+			theFrame.setContentPane(theAboutPanel);
+			theFrame.revalidate();
+			theFrame.repaint();
+			
+		}else if(evt.getSource() == theQuit){
+			System.exit(0);
+			
+		}else if(evt.getSource() == theBack){
+			if(blnJoined == true){
+				Socket.sendText("<DISCONNECT>");
+				Socket.disconnect();
+			}
+			theFrame.setContentPane(theMenuPanel);
+			theFrame.revalidate();
+			theFrame.repaint();
 		}
 	}
 
@@ -120,6 +240,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Convert coordinates to array (rows and columns)
 		int ColumnClick = (MouseX - StartX) / TileWidth;
 		int RowClick = (MouseY - StartY) / TileHeight;
+		if (RowClick >= 0 && RowClick < 16 && ColumnClick >= 0 && ColumnClick < 30) {
+			theGamePanel.passClickPos(ColumnClick, RowClick);
+		}else{
+			// Draws the rectangle out of the screen if what you clicked isn't part of the grid
+			theGamePanel.passClickPos(-100, -100);
+		}
 
 		// Check to make sure click is inside grid boundaries
 		if (RowClick >= 0 && RowClick < 16 && ColumnClick >= 0 && ColumnClick < 30) {
@@ -141,11 +267,28 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public void mouseClicked(MouseEvent evt) {
 	}
+	
+	public void clientConnect(String targetIP, int targetPort){
+		// Initialize the connection
+		Socket = new SuperSocketMaster(targetIP, targetPort, this);
+		Socket.connect();
+		theConnect.setEnabled(false); // Disable to prevent multiple click spam
+		blnHost = false;
+
+	}
+	
+	public void hostConnect(){
+		if(blnHost == true){
+			Socket = new SuperSocketMaster(intPort, this);
+			Socket.connect();
+			System.out.println("Awaiting connections");
+		}
+	}
+
 
 	// Constructor
 	public HueCueView() {
 
-		// CONNECT MODEL (ADDED ONLY)
 		model = new HueCueModel();
 		model.CSVGrid("colors.csv");
 
@@ -156,9 +299,13 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theGamePanel.addMouseListener(this);
 		theGamePanel.addMouseMotionListener(this);
 
-		theMenuPanel = new JPanel();
+		theMenuPanel = new GeneralPanel();
 		theMenuPanel.setLayout(null);
 		theMenuPanel.setPreferredSize(new Dimension(1280, 720));
+		
+		theHelpPanel = new GeneralPanel();
+		theHelpPanel.setLayout(null);
+		theHelpPanel.setPreferredSize(new Dimension(1280, 720));
 
 		// Text Area
 		theScroll.setBounds(960, 0, 320, 620);
@@ -170,31 +317,202 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theGamePanel.add(theField);
 
 		// Main Menu
-		theHost.setBounds(615, 200, 50, 25);
-		theJoin.setBounds(615, 250, 50, 25);
-		theHelp.setBounds(615, 300, 50, 25);
-		theAbout.setBounds(615, 350, 50, 25);
-		theQuit.setBounds(615, 400, 50, 25);
+		// set fonts for main menu JComponents
+		theHost.setFont(fntButton);
+		theJoin.setFont(fntButton);
+		theHelp.setFont(fntButton);
+		theAbout.setFont(fntButton);
+		theQuit.setFont(fntButton);
+		theTitleScreen.setFont(fntTitle);
+		theBack.setFont(fntButton);
 
+		// set bounds of main menu JComponents
+		theHost.setBounds(570, 250, 140, 50);
+		theJoin.setBounds(570, 325, 140, 50);
+		theHelp.setBounds(570, 400, 140, 50);
+		theAbout.setBounds(570, 475, 140, 50);
+		theQuit.setBounds(570, 550, 140, 50);
+		theTitleScreen.setBounds(0, 75, 1280, 80);
+		theBack.setBounds(590, 550, 100, 50);
+
+		// add the buttons to the menu panel
 		theMenuPanel.add(theHost);
 		theMenuPanel.add(theJoin);
 		theMenuPanel.add(theHelp);
 		theMenuPanel.add(theAbout);
 		theMenuPanel.add(theQuit);
+		theMenuPanel.add(theTitleScreen);
 
-		// Host Menu
+		// make the buttons invisible (just the text)
+		theHost.setOpaque(false);
+		theHost.setContentAreaFilled(false);
+		theHost.setBorderPainted(false);
+		theJoin.setOpaque(false);
+		theJoin.setContentAreaFilled(false);
+		theJoin.setBorderPainted(false);
+		theHelp.setOpaque(false);
+		theHelp.setContentAreaFilled(false);
+		theHelp.setBorderPainted(false);
+		theAbout.setOpaque(false);
+		theAbout.setContentAreaFilled(false);
+		theAbout.setBorderPainted(false);
+		theQuit.setOpaque(false);
+		theQuit.setContentAreaFilled(false);
+		theQuit.setBorderPainted(false);
+		theBack.setOpaque(false);
+		theBack.setContentAreaFilled(false);
+		theBack.setBorderPainted(false);
+
+		// set the text to the color white
+		theHost.setForeground(Color.white);
+		theJoin.setForeground(Color.white);
+		theHelp.setForeground(Color.white);
+		theAbout.setForeground(Color.white);
+		theQuit.setForeground(Color.white);
+		theBack.setForeground(Color.white);
+		theTitleScreen.setForeground(Color.white);
+		
+		// add a listener to the buttons
+		theHost.addActionListener(this);
+		theJoin.addActionListener(this);
+		theHelp.addActionListener(this);
+		theAbout.addActionListener(this);
+		theQuit.addActionListener(this);
+		theBack.addActionListener(this);
+
+
+	// Host Menu
+		// set fonts
+
+		theWaitPanel = new GeneralPanel();
+		theWaitPanel.setLayout(null);
+		theWaitPanel.setPreferredSize(new Dimension(1280, 720));
+
+		theWaitPanel.add(theWaitingRoom);
+		theWaitingRoom.setFont(fntTitle);
+		theWaitingRoom.setForeground(Color.white);
+
+		// set bounds
+		theWaitingRoom.setBounds(0, 75, 920, 75);
+		
+		theIP.setBounds(0, 300, 920, 75);
+		theIP.setFont(fntButton);
+		theIP.setForeground(Color.white);
+		theIP.setHorizontalAlignment(JTextField.CENTER);
+		
+		thePort.setBounds(0, 350, 920, 75);
+		thePort.setFont(fntButton);
+		thePort.setForeground(Color.white);
+		thePort.setHorizontalAlignment(JTextField.CENTER);
+		
+		theWaitPanel.add(thePort);
+		theWaitPanel.add(theIP);
+
+		waitChatScroll.setBounds(920, 0, 360, 600); 
+		waitChatScroll.setOpaque(false);
+		waitChatScroll.getViewport().setOpaque(false); 
+
+		waitChatArea.setEditable(false);
+		waitChatArea.setLineWrap(true);
+		waitChatArea.setWrapStyleWord(true);
+		waitChatArea.setFont(new Font("Arial", Font.PLAIN, 16));
+		waitChatArea.setForeground(Color.white); 
+		waitChatArea.setOpaque(false);
+		waitChatArea.setBackground(new Color(0, 0, 0, 50)); 
+		theWaitPanel.add(waitChatScroll);
+
+		// --- TRANSPARENT INPUT FIELD ---
+		waitChatField.setBounds(920, 600, 360, 140);
+		waitChatField.setFont(new Font("Arial", Font.PLAIN, 16));
+		waitChatField.setForeground(Color.white);
+		waitChatField.setCaretColor(Color.white); 
+		waitChatField.setOpaque(false);
+		waitChatField.setBackground(new Color(0, 0, 0, 80)); 
+		waitChatField.addActionListener(this); 
+		theWaitPanel.add(waitChatField);
+		
+		// add to the menu panel
+
+		// make buttons invisible
+
+		// add action listener to buttons
+
+		// orginize to the buttons to into and array
 
 		// Join Menu
+		theJoinPanel = new GeneralPanel();
+		theJoinPanel.setLayout(null);
+		theJoinPanel.setPreferredSize(new Dimension(1280, 720));
+
+		theJoinPanel.add(theJoinTitle);
+		theJoinTitle.setFont(fntTitle);
+		theJoinTitle.setForeground(Color.white);
+
+		theJoinTitle.setBounds(0, 75, 1280, 75);	
+		
+		// Join Input Field Setup
+		theIPInput.setFont(new Font("Arial", Font.PLAIN, 24));
+		theIPInput.setHorizontalAlignment(JTextField.CENTER);
+		theIPInput.setBounds(490, 175, 300, 75); 
+		theJoinPanel.add(theIPInput);
+		thePortNum.setFont(new Font("Arial", Font.PLAIN, 24));
+		thePortNum.setHorizontalAlignment(JTextField.CENTER);
+		thePortNum.setBounds(490, 275, 300, 75); 
+		theJoinPanel.add(thePortNum);
+		theUserName.setFont(new Font("Arial", Font.PLAIN, 24));
+		theUserName.setHorizontalAlignment(JTextField.CENTER);
+		theUserName.setBounds(490, 375, 300, 75); 
+		theJoinPanel.add(theUserName);
+
+		// Join Labels for text fields
+		theIPLabel.setBounds(450, 175, 100, 75);
+		theIPLabel.setFont(fntButton);
+		theIPLabel.setForeground(Color.white);
+		theJoinPanel.add(theIPLabel);
+		thePortLabel.setBounds(425, 275, 100, 75);
+		thePortLabel.setFont(fntButton);
+		thePortLabel.setForeground(Color.white);
+		theJoinPanel.add(thePortLabel);
+		theUserLabel.setBounds(425, 375, 100, 75);
+		theUserLabel.setFont(fntButton);
+		theUserLabel.setForeground(Color.white);
+		theJoinPanel.add(theUserLabel);
+
+		// Connect Button Setup
+		theConnect.setFont(fntButton);
+		theConnect.setForeground(Color.white);
+		theConnect.setOpaque(false);
+		theConnect.setContentAreaFilled(false);
+		theConnect.setBorderPainted(false);
+		theConnect.setBounds(540, 475, 200, 50); 
+		theConnect.addActionListener(this); 
+		theJoinPanel.add(theConnect);
 
 		// Help Menu
+		theHelpPanel.add(theHelpTitle);
+		theHelpTitle.setFont(fntTitle);
+		theHelpTitle.setForeground(Color.white);
 
+		theHelpTitle.setBounds(0, 75, 1280, 75);
+		
 		// About Menu
+		theAboutPanel = new GeneralPanel();
+		theAboutPanel.setLayout(null);
+		theAboutPanel.setPreferredSize(new Dimension(1280, 720));
+
+		theAboutPanel.add(theAboutTitle);
+		theAboutTitle.setFont(fntTitle);
+		theAboutTitle.setForeground(Color.white);
+
+		theAboutTitle.setBounds(0, 75, 1280, 75);	
 
 		// Game Menu
 
 		// Frame
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		theFrame.setContentPane(theMenuPanel);
+		// theFrame.setContentPane(theGamePanel);
+		// theTimer.start();
 		theFrame.pack();
 		theFrame.setResizable(false);
 		theFrame.setVisible(true);
@@ -206,6 +524,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		int tileHeight = 32;
 		int GridStartX = 0;
 		int GridStartY = 0;
+		int ColumnClick;
+		int RowClick;
 
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
@@ -239,6 +559,58 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 					g2.drawRect(x, y, tileWidth, tileHeight);
 				}
 			}
+			
+			// Highlights the selected tile (TEMPORARY)
+			// Will switch to game a game piece later
+			g2.setColor(Color.GREEN);
+			g2.setStroke(new BasicStroke(3));
+			g2.drawRect(this.ColumnClick*tileHeight,this.RowClick*tileWidth,tileWidth,tileHeight);
+		}
+		
+		// Method used to pass position of where you clicked
+		public void passClickPos(int ColumnClick, int RowClick){
+			this.ColumnClick = ColumnClick;
+			this.RowClick = RowClick;
+		}		
+	}
+
+	public class GeneralPanel extends JPanel{
+		
+		BufferedImage imgBG = null;
+		
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			g.drawImage(imgBG, 0, 0, null);
+		}
+		
+		// Method used to load images
+		public BufferedImage loadImage(String strFileName){  
+			// Try to read from jar file
+			InputStream imgClass = null;
+			imgClass = this.getClass().getResourceAsStream(strFileName);
+
+			if(imgClass != null){
+				try{
+					return ImageIO.read(imgClass);
+				}catch(IOException e){
+				}
+			}
+
+			// Try to read from local file
+			try{
+				BufferedImage theImg = ImageIO.read(new File(strFileName));
+				return theImg;
+			}catch(IOException e){
+				System.out.println("Unable to load image: " + strFileName);
+				return null;
+			}
+		}
+		
+		// Constructor
+		public GeneralPanel(){
+			super();
+			// Load grid image
+			imgBG = loadImage("Background.png");
 		}
 	}
 
@@ -246,3 +618,4 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		new HueCueView();
 	}
 }
+// a
