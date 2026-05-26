@@ -105,6 +105,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.out.println("Lobby chat text sent");
 			if (Socket != null) {
 				Socket.sendText(waitChatField.getText());
+				waitChatArea.append("You: " + waitChatField.getText() + "\n");
 			} else {
 				// Local visual testing fallback if offline
 				waitChatArea.append("You: " + waitChatField.getText() + "\n");
