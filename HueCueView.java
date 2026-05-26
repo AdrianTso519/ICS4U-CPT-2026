@@ -57,6 +57,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Join Menu
 	JLabel theJoinTitle = new JLabel("Join", SwingConstants.CENTER);
 	JTextField theIPInput = new JTextField();
+	JTextField theUserName = new JTextField();
+	JTextField thePortNum = new JTextField();
+	JLabel theIPLabel = new JLabel("IP:");
+	JLabel theUserLabel = new JLabel("User:");
+	JLabel thePortLabel = new JLabel("Port:");
 	JButton theConnect = new JButton("Connect");
 	// use theBack to go back to main menu
 
@@ -87,7 +92,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// Network Connection Properties
 	SuperSocketMaster Socket = null;
-	SuperSocketMaster Host = null;
 
 	HueCueModel model;
 
@@ -141,8 +145,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		} else if (evt.getSource() == Socket) {
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
-			// System.out.println(strLine);
-			theArea.append(strLine + "\n");
+			waitChatArea.append(strLine);
 			
 		}else if(evt.getSource() == theHost){
 			theWaitPanel.add(theBack);
@@ -421,11 +424,30 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		theJoinTitle.setBounds(0, 75, 1280, 75);	
 		
-		// IP Input Field Setup
+		// Join Input Field Setup
 		theIPInput.setFont(new Font("Arial", Font.PLAIN, 24));
 		theIPInput.setHorizontalAlignment(JTextField.CENTER);
-		theIPInput.setBounds(490, 250, 300, 150); 
+		theIPInput.setBounds(490, 175, 300, 75); 
 		theJoinPanel.add(theIPInput);
+		thePortNum.setFont(new Font("Arial", Font.PLAIN, 24));
+		thePortNum.setHorizontalAlignment(JTextField.CENTER);
+		thePortNum.setBounds(490, 275, 300, 75); 
+		theJoinPanel.add(thePortNum);
+		theUserName.setFont(new Font("Arial", Font.PLAIN, 24));
+		theUserName.setHorizontalAlignment(JTextField.CENTER);
+		theUserName.setBounds(490, 375, 300, 75); 
+		theJoinPanel.add(theUserName);
+
+		// Join Labels for text fields
+		theIPLabel.setBounds(450, 175, 100, 75);
+		theIPLabel.setFont(fntButton);
+		theJoinPanel.add(theIPLabel);
+		thePortLabel.setBounds(425, 275, 100, 75);
+		thePortLabel.setFont(fntButton);
+		theJoinPanel.add(thePortLabel);
+		theUserLabel.setBounds(425, 375, 100, 75);
+		theUserLabel.setFont(fntButton);
+		theJoinPanel.add(theUserLabel);
 
 		// Connect Button Setup
 		theConnect.setFont(fntButton);
@@ -433,7 +455,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theConnect.setOpaque(false);
 		theConnect.setContentAreaFilled(false);
 		theConnect.setBorderPainted(false);
-		theConnect.setBounds(540, 450, 200, 50); 
+		theConnect.setBounds(540, 475, 200, 50); 
 		theConnect.addActionListener(this); 
 		theJoinPanel.add(theConnect);
 
