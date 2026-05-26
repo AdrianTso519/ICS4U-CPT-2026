@@ -245,7 +245,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	}
 	
 	public void hostConnect(){
-		Host  = new SuperSocketMaster(intPort, this);
+		Socket = new SuperSocketMaster(intPort, this);
+		Socket.connect();
 		System.out.println("Awaiting connections");
 	}
 
