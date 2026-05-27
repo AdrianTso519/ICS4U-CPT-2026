@@ -21,6 +21,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	boolean blnJoined = false;
 	String username = "Host";
 	JFrame theFrame = new JFrame("CPT");
+	// game panels
 	GamePanel theGamePanel;
 	GeneralPanel theMenuPanel;
 	GeneralPanel theHelpPanel;
@@ -28,6 +29,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	GeneralPanel theJoinPanel;
 	GeneralPanel theWaitPanel; 
 
+	// timer
 	Timer theTimer = new Timer(1000 / 60, this);
 
 	// Main Menu
@@ -48,6 +50,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JScrollPane theScroll = new JScrollPane(theArea);
 	JTextField theField = new JTextField();
 	JButton theBack = new JButton("Back");
+	
+	// port variables
 	JLabel thePort  = new JLabel();
 	String strIP = "";
 	int intPort = 6767;
@@ -134,8 +138,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				return;
 			}
 
+			// tell user they are connecting
 			System.out.println("Attempting connection to: " + targetIP);
 			clientConnect(targetIP, targetPort);
+			// send text when user joins game
 			Socket.sendText("<JOIN> "+this.username);
 			Socket.sendText("<SYSTEM> "+this.username+" joined the room");
 			blnJoined = true;
@@ -202,6 +208,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 		}else if(evt.getSource() == theBack){
 			if(blnJoined == true){
+				// if client presses back send text
 				Socket.sendText("<DISCONNECT>");
 				Socket.sendText("<SYSTEM> "+this.username+" left the room");
 				Socket.disconnect();
@@ -294,17 +301,19 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		model = new HueCueModel();
 		model.CSVGrid("colors.csv");
 
-		// Panel
+		// Panels
 		theGamePanel = new GamePanel();
 		theGamePanel.setLayout(null);
 		theGamePanel.setPreferredSize(new Dimension(1280, 720));
 		theGamePanel.addMouseListener(this);
 		theGamePanel.addMouseMotionListener(this);
-
+		
+		// menu panel
 		theMenuPanel = new GeneralPanel();
 		theMenuPanel.setLayout(null);
 		theMenuPanel.setPreferredSize(new Dimension(1280, 720));
 		
+		// help panel
 		theHelpPanel = new GeneralPanel();
 		theHelpPanel.setLayout(null);
 		theHelpPanel.setPreferredSize(new Dimension(1280, 720));
@@ -386,6 +395,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Host Menu
 		// set fonts
 
+		// waiting rom panel
 		theWaitPanel = new GeneralPanel();
 		theWaitPanel.setLayout(null);
 		theWaitPanel.setPreferredSize(new Dimension(1280, 720));
@@ -506,6 +516,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theAboutTitle.setFont(fntTitle);
 		theAboutTitle.setForeground(Color.white);
 
+		// about menu text
 		theAboutAuthor.setBounds(0, 200, 1280, 75);
 		theAboutAuthor.setHorizontalAlignment(JTextField.CENTER);
 		theAboutAuthor.setFont(fntButton);
@@ -534,8 +545,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		theAboutTitle.setBounds(0, 75, 1280, 75);	
 
-		// Game Menu
-
 		// Frame
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		theFrame.setContentPane(theMenuPanel);
@@ -548,6 +557,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public class GamePanel extends JPanel {
 
+		// tile variables
 		int tileWidth = 32;
 		int tileHeight = 32;
 		int GridStartX = 0;
