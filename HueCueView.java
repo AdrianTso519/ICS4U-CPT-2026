@@ -506,6 +506,32 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theAboutTitle.setFont(fntTitle);
 		theAboutTitle.setForeground(Color.white);
 
+		theAboutAuthor.setBounds(0, 200, 1280, 75);
+		theAboutAuthor.setHorizontalAlignment(JTextField.CENTER);
+		theAboutAuthor.setFont(fntButton);
+		theAboutAuthor.setForeground(Color.white);
+		theAboutPanel.add(theAboutAuthor);
+		theAboutDate.setBounds(0, 250, 1280, 75);
+		theAboutDate.setHorizontalAlignment(JTextField.CENTER);
+		theAboutDate.setFont(fntButton);
+		theAboutDate.setForeground(Color.white);
+		theAboutPanel.add(theAboutDate);
+		theAboutCourse.setBounds(0, 300, 1280, 75);
+		theAboutCourse.setHorizontalAlignment(JTextField.CENTER);
+		theAboutCourse.setFont(fntButton);
+		theAboutCourse.setForeground(Color.white);
+		theAboutPanel.add(theAboutCourse);
+		theAboutTeacher.setBounds(0, 350, 1280, 75);
+		theAboutTeacher.setHorizontalAlignment(JTextField.CENTER);
+		theAboutTeacher.setFont(fntButton);
+		theAboutTeacher.setForeground(Color.white);
+		theAboutPanel.add(theAboutTeacher);
+		theAboutInspirtion.setBounds(0, 400, 1280, 75);
+		theAboutInspirtion.setHorizontalAlignment(JTextField.CENTER);
+		theAboutInspirtion.setFont(fntButton);
+		theAboutInspirtion.setForeground(Color.white);
+		theAboutPanel.add(theAboutInspirtion);
+
 		theAboutTitle.setBounds(0, 75, 1280, 75);	
 
 		// Game Menu
