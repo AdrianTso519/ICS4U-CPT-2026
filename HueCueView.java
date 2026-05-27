@@ -157,6 +157,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 			// Socket triggered
 		} else if (evt.getSource() == Socket) {
+			
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
 			// Detection of backend messages like player count, system messages
@@ -171,8 +172,23 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				this.intPlayerCount--;
 				Socket.sendText("<COUNT> "+this.intPlayerCount);
 				System.out.println("<COUNT> "+this.intPlayerCount);
+			// --- NETWORK COMMAND DETECTION ---
+			}else if(strLine.equals("<START>")) {
+				// Clients receive this message and instantly switch to their game boards
+				theFrame.setContentPane(theGamePanel);
+				theFrame.revalidate();
+				theFrame.repaint();
+				theTimer.start(); // Start your 60 FPS repaint loop
 			}else{
 				waitChatArea.append(strLine+"\n");
+			}
+			
+			// --- LIVE CHECK PLAYER COUNT FOR THE LOBBY BUTTON ---
+			// Enable start button if player counts are between 3 and 6 (inclusive) and user is host
+			if (this.blnHost && this.intPlayerCount >= 3 && this.intPlayerCount <= 6) {
+				theStart.setVisible(true);
+			} else {
+				theStart.setVisible(false);
 			}
 			
 		}else if(evt.getSource() == theHost){
@@ -202,6 +218,19 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.setContentPane(theAboutPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
+			
+		}else if(evt.getSource() == theStart){
+		System.out.println("Host started the game session!");
+		
+		// Broadcast start signal to all connected clients
+		Socket.sendText("<START>");
+		
+		// Move the host's screen to the game board immediately
+		theFrame.setContentPane(theGamePanel);
+		theFrame.revalidate();
+		theFrame.repaint();
+		// Activate the game panel update timer loop
+		theTimer.start(); 
 			
 		}else if(evt.getSource() == theQuit){
 			System.exit(0);
@@ -419,6 +448,17 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		
 		theWaitPanel.add(thePort);
 		theWaitPanel.add(theIP);
+		
+		// --- START BUTTON HERE ---
+		theStart.setBounds(360, 450, 200, 60); // Centered on the left half of the lobby
+		theStart.setFont(fntButton);
+		theStart.setForeground(Color.white);
+		theStart.setOpaque(false);
+		theStart.setContentAreaFilled(false);
+		theStart.setBorderPainted(false);
+		theStart.addActionListener(this);
+		theStart.setVisible(false); // Hide it initially until 3 players are present
+		theWaitPanel.add(theStart);
 
 		waitChatScroll.setBounds(920, 0, 360, 600); 
 		waitChatScroll.setOpaque(false);
