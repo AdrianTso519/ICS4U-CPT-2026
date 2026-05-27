@@ -205,6 +205,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				Socket.sendText("<DISCONNECT>");
 				Socket.sendText("<SYSTEM> "+this.username+" left the room");
 				Socket.disconnect();
+				theConnect.setEnabled(true);
 			}
 			theFrame.setContentPane(theMenuPanel);
 			theFrame.revalidate();
