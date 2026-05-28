@@ -75,7 +75,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// Help Menu
 	JLabel theHelpTitle = new JLabel("Help", SwingConstants.CENTER);
-	JLabel theHelpText = new JLabel(/* insert game explanation here */);
+	JTextArea theHelpText = new JTextArea(/* insert game explanation here */);
+	int intAboutCnt = 0;
+	JButton theHelpButton = new JButton("Next");
 	// use theBack to go back to main menu
 
 	// About Menu
@@ -220,6 +222,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.setContentPane(theHelpPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
+			intAboutCnt = 0;
+			theHelpText.setText("");
+			theHelpText.append("One player has a colored tile that the have to try to give one word hints to the other players");
+
 			
 		}else if(evt.getSource() == theAbout){
 			theAboutPanel.add(theBack);
@@ -237,6 +243,30 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				Socket.sendText("<CLOSE>");
 			}
 			theBack();
+		}else if(evt.getSource() == theHelpButton){
+			intAboutCnt++;
+			if(intAboutCnt == 1){
+				theHelpText.setText("");
+				theHelpText.append("The other players have to try and guess/place a tile on the color that they think the clue giver has");
+			}else if(intAboutCnt == 2){
+				theHelpText.setText("");
+				theHelpText.append("After the other players have chosen a tile, the clue giver gives another hint");
+			}else if(intAboutCnt == 3){
+				theHelpText.setText("");
+				theHelpText.append("The guessers can now select a new tile based on both hints given\r\n" + 
+										"If the guesser gets the correct tile, they get 3 points\r\n" + 
+										"If the tile chosen is one adjacent to the tile then they get 2 points\r\n" + 
+										"If the tile chosen is 2 adjacent away from the correct tile they get 1 point\r\n" + 
+										"");
+			}else if(intAboutCnt == 4){
+				theHelpText.setText("");
+				theHelpText.append("Players not within this range do not get points\r\n" + 
+											"The clue giver get points equal to the number of people that scored");
+			}else if(intAboutCnt == 5){
+				theHelpText.setText("");
+				theHelpText.append("The player that gives hints changes with every round\r\n" + //
+										"The player with the most points at the end, wins!");
+			}
 		}
 	}
 
@@ -253,6 +283,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	}
 
 	public void mouseReleased(MouseEvent evt) {
+	}
+
+	public void mouseClicked(MouseEvent evt) {
 	}
 
 	public void mousePressed(MouseEvent evt) {
@@ -292,9 +325,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				System.out.println("Clicked an empty/null tile slot.");
 			}
 		}
-	}
-
-	public void mouseClicked(MouseEvent evt) {
 	}
 	
 	public void clientConnect(String targetIP, int targetPort){
@@ -561,9 +591,28 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theHelpPanel.add(theHelpTitle);
 		theHelpTitle.setFont(fntTitle);
 		theHelpTitle.setForeground(Color.white);
-
 		theHelpTitle.setBounds(0, 75, 1280, 75);
-		
+
+		theHelpButton.setFont(fntButton);
+		theHelpButton.setBounds(900, 550, 200, 50);
+		theHelpButton.setForeground(Color.white);
+		theHelpButton.setOpaque(false);
+		theHelpButton.setContentAreaFilled(false);
+		theHelpButton.setBorderPainted(false);
+		theHelpButton.addActionListener(this);
+		theHelpPanel.add(theHelpButton);
+
+		theHelpText.setBounds(200, 300, 820, 200);
+		theHelpText.setEditable(false);
+		theHelpText.setLineWrap(true);
+		theHelpText.setWrapStyleWord(true);
+		theHelpText.setFont(new Font("Arial", Font.PLAIN, 20));
+		theHelpText.setForeground(Color.white);
+		theHelpText.setOpaque(false);
+		theHelpText.setBackground(new Color(0, 0, 0, 50));
+		theHelpPanel.add(theHelpText);
+
+
 		// About Menu
 		theAboutPanel = new GeneralPanel();
 		theAboutPanel.setLayout(null);
