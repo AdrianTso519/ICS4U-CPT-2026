@@ -17,6 +17,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// Properties
 	int intPlayerCount = 1;
+	int intPlayerNumber = 1;
 	boolean blnHost = true;
 	boolean blnJoined = false;
 	String username = "Host";
@@ -153,6 +154,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
+			
+			intPlayerNumber = intPlayerCount;
+			System.out.println("You are Player "+intPlayerNumber);
 			
 			// Socket triggered
 		} else if (evt.getSource() == Socket) {
