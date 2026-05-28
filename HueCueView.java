@@ -233,7 +233,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.exit(0);
 			
 		}else if(evt.getSource() == theBack){
-			Socket.sendText("<CLOSE>");
+			if(theWaitPanel.isShowing()){
+				Socket.sendText("<CLOSE>");
+			}
 			theBack();
 		}
 	}
@@ -711,4 +713,3 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		new HueCueView();
 	}
 }
-// a
