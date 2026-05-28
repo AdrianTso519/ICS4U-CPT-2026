@@ -195,6 +195,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			} else {
 				theStart.setVisible(false);
 			}
+			if(this.intPlayerCount == 6){
+				theStart();
+			}
 			
 		}else if(evt.getSource() == theHost){
 			theWaitPanel.add(theBack);
@@ -225,18 +228,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.repaint();
 			
 		}else if(evt.getSource() == theStart){
-		System.out.println("Host started the game session!");
-		
-		// Broadcast start signal to all connected clients
-		Socket.sendText("<START>");
-		
-		// Move the host's screen to the game board immediately
-		theFrame.setContentPane(theGamePanel);
-		theFrame.revalidate();
-		theFrame.repaint();
-		// Activate the game panel update timer loop
-		theTimer.start(); 
-			
+			theStart();
 		}else if(evt.getSource() == theQuit){
 			System.exit(0);
 			
@@ -331,6 +323,20 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theFrame.setContentPane(theMenuPanel);
 		theFrame.revalidate();
 		theFrame.repaint();
+	}
+	
+	public void theStart(){
+		System.out.println("Host started the game session!");
+		
+		// Broadcast start signal to all connected clients
+		Socket.sendText("<START>");
+		
+		// Move the host's screen to the game board immediately
+		theFrame.setContentPane(theGamePanel);
+		theFrame.revalidate();
+		theFrame.repaint();
+		// Activate the game panel update timer loop
+		theTimer.start(); 
 	}
 
 	// Constructor
