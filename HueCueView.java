@@ -93,8 +93,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JLabel theP2Points = new JLabel("Player 2: " /* Add variable of player 2 points */);
 	JLabel theP3Points = new JLabel("Player 2: " /* Add variable of player 3 points */);
 	JLabel theP4Points = new JLabel("Player 4: " /* Add variable of player 4 points */);
-	JLabel theP5Points = new JLabel("Player 5: " /* Add variable of player 4 points */);
-	JLabel theP6Points = new JLabel("Player 6: " /* Add variable of player 4 points */);
+	JLabel theP5Points = new JLabel("Player 5: " /* Add variable of player 5 points */);
+	JLabel theP6Points = new JLabel("Player 6: " /* Add variable of player 6 points */);
 	JComponent GameMenu[];
 
 	// Network Connection Properties
@@ -115,9 +115,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 		} else if (evt.getSource() == waitChatField) {
 			System.out.println("Lobby chat text sent");
-			if (Socket != null) {
+			if (Socket != null && !waitChatField.getText().equals("")) {
 				Socket.sendText("<"+this.username+"> "+waitChatField.getText());
-				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
 			} else {
 				// Local visual testing fallback if offline
 				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
@@ -179,6 +178,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				theFrame.revalidate();
 				theFrame.repaint();
 				theTimer.start(); // Start your 60 FPS repaint loop
+			}else if(strLine.equals("<CLOSE>")){
+				theBack();
 			}else{
 				waitChatArea.append(strLine+"\n");
 			}
@@ -236,16 +237,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.exit(0);
 			
 		}else if(evt.getSource() == theBack){
-			if(blnJoined == true){
-				// if client presses back send text
-				Socket.sendText("<DISCONNECT>");
-				Socket.sendText("<SYSTEM> "+this.username+" left the room");
-				Socket.disconnect();
-				theConnect.setEnabled(true);
-			}
-			theFrame.setContentPane(theMenuPanel);
-			theFrame.revalidate();
-			theFrame.repaint();
+			Socket.sendText("<CLOSE>");
+			theBack();
 		}
 	}
 
@@ -322,7 +315,19 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.out.println("Awaiting connections");
 		}
 	}
-
+	public void theBack(){
+		if(blnJoined == true){
+			// if client presses back send text
+			Socket.sendText("<DISCONNECT>");
+			Socket.sendText("<SYSTEM> "+this.username+" left the room");
+			Socket.disconnect();
+			theConnect.setEnabled(true);
+		}
+		waitChatArea.setText("");
+		theFrame.setContentPane(theMenuPanel);
+		theFrame.revalidate();
+		theFrame.repaint();
+	}
 
 	// Constructor
 	public HueCueView() {
