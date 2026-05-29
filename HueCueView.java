@@ -532,14 +532,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		waitChatField.setBackground(new Color(0, 0, 0, 80)); 
 		waitChatField.addActionListener(this); 
 		theWaitPanel.add(waitChatField);
-		
-		// add to the menu panel
-
-		// make buttons invisible
-
-		// add action listener to buttons
-
-		// orginize to the buttons to into and array
 
 		// Join Menu
 		theJoinPanel = new GeneralPanel();
