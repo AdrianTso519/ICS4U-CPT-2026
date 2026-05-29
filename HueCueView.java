@@ -76,7 +76,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Help Menu
 	JLabel theHelpTitle = new JLabel("Help", SwingConstants.CENTER);
 	JTextArea theHelpText = new JTextArea(/* insert game explanation here */);
-	int intAboutCnt = 0;
+	int intHelpCnt = 0;
 	JButton theHelpButton = new JButton("Next");
 	// use theBack to go back to main menu
 
@@ -225,7 +225,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.setContentPane(theHelpPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
-			intAboutCnt = 0;
 			theHelpText.setText("");
 			theHelpText.append("One player has a colored tile that the have to try to give one word hints to the other players");
 
@@ -245,30 +244,33 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			if(theWaitPanel.isShowing() && blnHost == true){
 				Socket.sendText("<CLOSE>");
 			}
+			intHelpCnt = 0;
 			theBack();
 		}else if(evt.getSource() == theHelpButton){
-			intAboutCnt++;
-			if(intAboutCnt == 1){
-				theHelpText.setText("");
-				theHelpText.append("The other players have to try and guess/place a tile on the color that they think the clue giver has");
-			}else if(intAboutCnt == 2){
-				theHelpText.setText("");
-				theHelpText.append("After the other players have chosen a tile, the clue giver gives another hint");
-			}else if(intAboutCnt == 3){
-				theHelpText.setText("");
-				theHelpText.append("The guessers can now select a new tile based on both hints given\r\n" + 
-										"If the guesser gets the correct tile, they get 3 points\r\n" + 
-										"If the tile chosen is one adjacent to the tile then they get 2 points\r\n" + 
-										"If the tile chosen is 2 adjacent away from the correct tile they get 1 point\r\n" + 
-										"");
-			}else if(intAboutCnt == 4){
-				theHelpText.setText("");
-				theHelpText.append("Players not within this range do not get points\r\n" + 
-											"The clue giver get points equal to the number of people that scored");
-			}else if(intAboutCnt == 5){
-				theHelpText.setText("");
-				theHelpText.append("The player that gives hints changes with every round\r\n" + //
-										"The player with the most points at the end, wins!");
+			intHelpCnt++;
+			switch (intHelpCnt) {
+				case 1 -> {
+                     theHelpText.setText("");
+    	             theHelpText.append("The other players have to try and guess/place a tile on the color that they think the clue giver has");
+                }case 2 -> {
+					theHelpText.setText("");
+					theHelpText.append("After the other players have chosen a tile, the clue giver gives another hint");
+				}case 3 -> {
+					theHelpText.setText("");
+					theHelpText.append("The guessers can now select a new tile based on both hints given\r\n" +
+						"If the guesser gets the correct tile, they get 3 points\r\n" +
+						"If the tile chosen is one adjacent to the tile then they get 2 points\r\n" +
+						"If the tile chosen is 2 adjacent away from the correct tile they get 1 point");
+				}case 4 -> {
+					theHelpText.setText("");
+					theHelpText.append("Players not within this range do not get points\r\n" +
+						"The clue giver get points equal to the number of people that scored");
+				}case 5 -> {
+					theHelpText.setText("");
+					theHelpText.append("The player that gives hints changes with every round\r\n" + 
+						"The player with the most points at the end, wins!");
+				}default -> {
+                        }
 			}
 		}
 	}
@@ -716,10 +718,15 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public class GeneralPanel extends JPanel{
 		
 		BufferedImage imgBG = null;
+		BufferedImage imgHelp = null;
 		
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			g.drawImage(imgBG, 0, 0, null);
+			if(intHelpCnt == 3){
+				g.drawImage(imgHelp, 900, 250, null);
+			}
+
 		}
 		
 		// Method used to load images
@@ -750,7 +757,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			super();
 			// Load grid image
 			imgBG = loadImage("Background.png");
+			imgHelp = loadImage("Score Area.png");
 		}
+		
 	}
 
 	public static void main(String[] args) {
