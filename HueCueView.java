@@ -18,7 +18,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Properties
 	int intPlayerCount = 1;
 	int intPlayerNumber = 1;
-	boolean blnHost = true;
+	boolean blnHost = false;
 	boolean blnJoined = false;
 	String username = "Host";
 	JFrame theFrame = new JFrame("CPT");
@@ -116,14 +116,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			Socket.sendText(theField.getText());
 			theField.setText("");
 			
-		} else if (evt.getSource() == waitChatField) {
+		}else if (evt.getSource() == waitChatField) {
 			System.out.println("Lobby chat text sent");
-			if (Socket != null && !waitChatField.getText().equals("")) {
-				Socket.sendText("<"+this.username+"> "+waitChatField.getText());
-			} else {
-				// Local visual testing fallback if offline
+				
+			if (!waitChatField.getText().trim().equals("")) {
+				if (Socket != null) {
+					Socket.sendText("<"+this.username+"> "+waitChatField.getText());
+				}
 				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
 			}
+
 			waitChatField.setText("");
 			
 			// Button Triggered
@@ -202,6 +204,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}
 			
 		}else if(evt.getSource() == theHost){
+			blnHost = true;
 			theWaitPanel.add(theBack);
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
@@ -239,7 +242,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.exit(0);
 			
 		}else if(evt.getSource() == theBack){
-			if(theWaitPanel.isShowing()){
+			if(theWaitPanel.isShowing() && blnHost == true){
 				Socket.sendText("<CLOSE>");
 			}
 			theBack();
