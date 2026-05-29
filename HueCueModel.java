@@ -36,7 +36,20 @@ public class HueCueModel{
 		return fullColourGrid[row][col];
 	}
 	
-	// Self made Methods
+	public int getScore(int[] RandomRowCol, int RowClick, int ColumnClick){
+		if(RandomRowCol[0] - 2 <= RowClick && RowClick <= RandomRowCol[0] + 2 && RandomRowCol[1] - 2 <= ColumnClick && ColumnClick <= RandomRowCol[1] + 2){
+			if(RandomRowCol[0] == RowClick && RandomRowCol[1] == ColumnClick){
+				return 3;
+			}else if(RandomRowCol[0] - 1 <= RowClick && RowClick <= RandomRowCol[0] + 1 && RandomRowCol[1] - 1 <= ColumnClick && ColumnClick <= RandomRowCol[1] + 1){
+				return 2;
+			}else{
+				return 1;
+			}
+		}else{
+			return 0;
+		}
+	}
+	
 	public void CSVGrid(String filename){
 		try(BufferedReader theReader = new BufferedReader(new FileReader(filename))){
 			String line;
