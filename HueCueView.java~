@@ -16,11 +16,11 @@ import javax.swing.*;
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
 
 	// Properties
-	int intPlayerCount = 1;
-	boolean blnHost = true;
-	boolean blnJoined = false;
-	String username = "Host";
 	JFrame theFrame = new JFrame("CPT");
+	boolean blnHost = false;
+	boolean blnJoined = false;
+	int intPort = 6767;
+	// game panels
 	GamePanel theGamePanel;
 	GeneralPanel theMenuPanel;
 	GeneralPanel theHelpPanel;
@@ -28,6 +28,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	GeneralPanel theJoinPanel;
 	GeneralPanel theWaitPanel; 
 
+	// timer
 	Timer theTimer = new Timer(1000 / 60, this);
 
 	// Main Menu
@@ -48,9 +49,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JScrollPane theScroll = new JScrollPane(theArea);
 	JTextField theField = new JTextField();
 	JButton theBack = new JButton("Back");
+	
+	// port variables
 	JLabel thePort  = new JLabel();
 	String strIP = "";
-	int intPort = 6767;
 	
 	//Waiting room stuff
 	JTextArea waitChatArea = new JTextArea();
@@ -70,7 +72,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// Help Menu
 	JLabel theHelpTitle = new JLabel("Help", SwingConstants.CENTER);
-	JLabel theHelpText = new JLabel(/* insert game explanation here */);
+	JTextArea theHelpText = new JTextArea(/* insert game explanation here */);
+	JButton theHelpButton = new JButton("Next");
 	// use theBack to go back to main menu
 
 	// About Menu
@@ -89,8 +92,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JLabel theP2Points = new JLabel("Player 2: " /* Add variable of player 2 points */);
 	JLabel theP3Points = new JLabel("Player 2: " /* Add variable of player 3 points */);
 	JLabel theP4Points = new JLabel("Player 4: " /* Add variable of player 4 points */);
-	JLabel theP5Points = new JLabel("Player 5: " /* Add variable of player 4 points */);
-	JLabel theP6Points = new JLabel("Player 6: " /* Add variable of player 4 points */);
+	JLabel theP5Points = new JLabel("Player 5: " /* Add variable of player 5 points */);
+	JLabel theP6Points = new JLabel("Player 6: " /* Add variable of player 6 points */);
 	JComponent GameMenu[];
 
 	// Network Connection Properties
@@ -109,15 +112,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			Socket.sendText(theField.getText());
 			theField.setText("");
 			
-		} else if (evt.getSource() == waitChatField) {
+		}else if (evt.getSource() == waitChatField) {
 			System.out.println("Lobby chat text sent");
-			if (Socket != null) {
-				Socket.sendText("<"+this.username+"> "+waitChatField.getText());
-				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
-			} else {
-				// Local visual testing fallback if offline
+				
+			if (!waitChatField.getText().trim().equals("")) {
+				if (Socket != null) {
+					Socket.sendText("<"+model.username+"> "+waitChatField.getText());
+				}
 				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
 			}
+
 			waitChatField.setText("");
 			
 			// Button Triggered
@@ -126,7 +130,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 			String targetIP = theIPInput.getText();
 			int targetPort = Integer.parseInt(thePortNum.getText());
-			username = theUserName.getText();
+			model.username = theUserName.getText();
 			
 			// Safety check: Don't try connecting if they didn't replace the placeholder
 			if (targetIP.equals("") || targetIP.trim().isEmpty()) {
@@ -134,11 +138,13 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				return;
 			}
 
+			// tell user they are connecting
 			System.out.println("Attempting connection to: " + targetIP);
 			clientConnect(targetIP, targetPort);
-			Socket.sendText("<JOIN> "+this.username);
-			Socket.sendText("<SYSTEM> "+this.username+" joined the room");
-			blnJoined = true;
+			// send text when user joins game
+			Socket.sendText("<JOIN> "+model.username);
+			Socket.sendText("<SYSTEM> "+model.username+" joined the room");
+			this.blnJoined = true;
 			
 			// --- TRANSPORT TO THE WAITING ROOM ---
 			// Move the back button to the waiting room panel dynamically
@@ -149,27 +155,63 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.revalidate();
 			theFrame.repaint();
 			
+			model.intPlayerNumber = model.intPlayerCount;
+			System.out.println("You are Player "+model.intPlayerNumber);
+			
 			// Socket triggered
 		} else if (evt.getSource() == Socket) {
+			
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
 			// Detection of backend messages like player count, system messages
 			if(strLine.startsWith("<JOIN>")){
-				this.intPlayerCount++;
-				Socket.sendText("<COUNT> "+this.intPlayerCount);
-				System.out.println("<COUNT> "+this.intPlayerCount);
+				model.intPlayerCount++;
+				Socket.sendText("<COUNT> "+model.intPlayerCount);
+				model.strUserName[model.intPlayerCount] = strLine.substring(6);
+				System.out.println(model.intPlayerCount+" "+model.strUserName[model.intPlayerCount]);
+				System.out.println("<COUNT> "+model.intPlayerCount);
 			}else if(strLine.startsWith("<COUNT>")){
-				this.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
-				System.out.println(this.intPlayerCount+" Players");
+				model.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
+				System.out.println(model.intPlayerCount+" Players");
 			}else if(strLine.equals("<DISCONNECT>")){
-				this.intPlayerCount--;
-				Socket.sendText("<COUNT> "+this.intPlayerCount);
-				System.out.println("<COUNT> "+this.intPlayerCount);
+				model.strUserName[model.intPlayerCount] = "";
+				System.out.println(model.intPlayerCount+" "+model.strUserName[model.intPlayerCount]);
+				model.intPlayerCount--;
+				Socket.sendText("<COUNT> "+model.intPlayerCount);
+				System.out.println("<COUNT> "+model.intPlayerCount);
+			// --- NETWORK COMMAND DETECTION ---
+			}else if(strLine.equals("<START>")) {
+				// Clients receive this message and instantly switch to their game boards
+				theFrame.setContentPane(theGamePanel);
+				theFrame.revalidate();
+				theFrame.repaint();
+				theWaitPanel.remove(waitChatField);
+				theWaitPanel.remove(waitChatScroll);
+				theGamePanel.add(waitChatField);
+				theGamePanel.add(waitChatScroll);
+				//theTimer.start(); // Start your 60 FPS repaint loop
+			}else if(strLine.equals("<CLOSE>")){
+				theBack();
 			}else{
 				waitChatArea.append(strLine+"\n");
 			}
 			
+			// --- LIVE CHECK PLAYER COUNT FOR THE LOBBY BUTTON ---
+			// Enable start button if player counts are between 3 and 6 (inclusive) and user is host
+			if (this.blnHost && model.intPlayerCount >= 3 && model.intPlayerCount <= 6) {
+				theStart.setVisible(true);
+			} else {
+				theStart.setVisible(false);
+			}
+			if(model.intPlayerCount == 6){
+				theStart();
+			}
+			
 		}else if(evt.getSource() == theHost){
+			this.blnHost = true;
+			model.intPlayerNumber = 1;
+			model.strUserName[model.intPlayerNumber] = model.username;
+			System.out.println(model.intPlayerCount+" "+model.strUserName[model.intPlayerCount]);
 			theWaitPanel.add(theBack);
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
@@ -177,7 +219,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			hostConnect();
 			strIP = Socket.getMyAddress();
 			theIP.setText("IP: " + strIP);
-			thePort.setText("Port: " + intPort);
+			thePort.setText("Port: " + this.intPort);
 			
 		}else if(evt.getSource() == theJoin){
 			theJoinPanel.add(theBack);
@@ -190,6 +232,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.setContentPane(theHelpPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
+			theHelpText.setText("");
+			theHelpText.append("One player has a colored tile that the have to try to give one word hints to the other players");
+
 			
 		}else if(evt.getSource() == theAbout){
 			theAboutPanel.add(theBack);
@@ -197,17 +242,43 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.revalidate();
 			theFrame.repaint();
 			
+		}else if(evt.getSource() == theStart){
+			theStart();
 		}else if(evt.getSource() == theQuit){
 			System.exit(0);
 			
 		}else if(evt.getSource() == theBack){
-			if(blnJoined == true){
-				Socket.sendText("<DISCONNECT>");
-				Socket.disconnect();
+			if(theWaitPanel.isShowing() && this.blnHost == true){
+				Socket.sendText("<CLOSE>");
 			}
-			theFrame.setContentPane(theMenuPanel);
-			theFrame.revalidate();
-			theFrame.repaint();
+			model.intHelpCnt = 0;
+			theBack();
+		}else if(evt.getSource() == theHelpButton){
+			model.intHelpCnt++;
+			switch (model.intHelpCnt) {
+				case 1 -> {
+                     theHelpText.setText("");
+    	             theHelpText.append("The other players have to try and guess/place a tile on the color that they think the clue giver has");
+                }case 2 -> {
+					theHelpText.setText("");
+					theHelpText.append("After the other players have chosen a tile, the clue giver gives another hint");
+				}case 3 -> {
+					theHelpText.setText("");
+					theHelpText.append("The guessers can now select a new tile based on both hints given\r\n" +
+						"If the guesser gets the correct tile, they get 3 points\r\n" +
+						"If the tile chosen is one adjacent to the tile then they get 2 points\r\n" +
+						"If the tile chosen is 2 adjacent away from the correct tile they get 1 point");
+				}case 4 -> {
+					theHelpText.setText("");
+					theHelpText.append("Players not within this range do not get points\r\n" +
+						"The clue giver get points equal to the number of people that scored");
+				}case 5 -> {
+					theHelpText.setText("");
+					theHelpText.append("The player that gives hints changes with every round\r\n" + 
+						"The player with the most points at the end, wins!");
+				}default -> {
+                        }
+			}
 		}
 	}
 
@@ -224,6 +295,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	}
 
 	public void mouseReleased(MouseEvent evt) {
+	}
+
+	public void mouseClicked(MouseEvent evt) {
 	}
 
 	public void mousePressed(MouseEvent evt) {
@@ -264,27 +338,54 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}
 		}
 	}
-
-	public void mouseClicked(MouseEvent evt) {
-	}
 	
 	public void clientConnect(String targetIP, int targetPort){
 		// Initialize the connection
 		Socket = new SuperSocketMaster(targetIP, targetPort, this);
 		Socket.connect();
 		theConnect.setEnabled(false); // Disable to prevent multiple click spam
-		blnHost = false;
+		this.blnHost = false;
 
 	}
 	
 	public void hostConnect(){
-		if(blnHost == true){
-			Socket = new SuperSocketMaster(intPort, this);
+		if(this.blnHost == true){
+			Socket = new SuperSocketMaster(this.intPort, this);
 			Socket.connect();
 			System.out.println("Awaiting connections");
 		}
 	}
-
+	public void theBack(){
+		if(this.blnJoined == true){
+			// if client presses back send text
+			Socket.sendText("<DISCONNECT>");
+			Socket.sendText("<SYSTEM> "+model.username+" left the room");
+			Socket.disconnect();
+			theConnect.setEnabled(true);
+		}
+		waitChatArea.setText("");
+		theFrame.setContentPane(theMenuPanel);
+		theFrame.revalidate();
+		theFrame.repaint();
+	}
+	
+	public void theStart(){
+		System.out.println("Host started the game session!");
+		
+		// Broadcast start signal to all connected clients
+		Socket.sendText("<START>");
+		
+		// Move the host's screen to the game board immediately
+		theWaitPanel.remove(waitChatField);
+		theWaitPanel.remove(waitChatScroll);
+		theGamePanel.add(waitChatField);
+		theGamePanel.add(waitChatScroll);
+		theFrame.setContentPane(theGamePanel);
+		theFrame.revalidate();
+		theFrame.repaint();
+		// Activate the game panel update timer loop
+		//theTimer.start(); 
+	}
 
 	// Constructor
 	public HueCueView() {
@@ -292,29 +393,32 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		model = new HueCueModel();
 		model.CSVGrid("colors.csv");
 
-		// Panel
+		// Panels
 		theGamePanel = new GamePanel();
+		theGamePanel.setBackground(Color.BLACK);
 		theGamePanel.setLayout(null);
 		theGamePanel.setPreferredSize(new Dimension(1280, 720));
 		theGamePanel.addMouseListener(this);
 		theGamePanel.addMouseMotionListener(this);
-
+		
+		// menu panel
 		theMenuPanel = new GeneralPanel();
 		theMenuPanel.setLayout(null);
 		theMenuPanel.setPreferredSize(new Dimension(1280, 720));
 		
+		// help panel
 		theHelpPanel = new GeneralPanel();
 		theHelpPanel.setLayout(null);
 		theHelpPanel.setPreferredSize(new Dimension(1280, 720));
 
 		// Text Area
 		theScroll.setBounds(960, 0, 320, 620);
-		theGamePanel.add(theScroll);
+		//theGamePanel.add(theScroll);
 
 		// Text Field
 		theField.setBounds(960, 620, 320, 100);
 		theField.addActionListener(this);
-		theGamePanel.add(theField);
+		//theGamePanel.add(theField);
 
 		// Main Menu
 		// set fonts for main menu JComponents
@@ -384,6 +488,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Host Menu
 		// set fonts
 
+		// waiting rom panel
 		theWaitPanel = new GeneralPanel();
 		theWaitPanel.setLayout(null);
 		theWaitPanel.setPreferredSize(new Dimension(1280, 720));
@@ -407,6 +512,17 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		
 		theWaitPanel.add(thePort);
 		theWaitPanel.add(theIP);
+		
+		// --- START BUTTON HERE ---
+		theStart.setBounds(360, 450, 200, 60); // Centered on the left half of the lobby
+		theStart.setFont(fntButton);
+		theStart.setForeground(Color.white);
+		theStart.setOpaque(false);
+		theStart.setContentAreaFilled(false);
+		theStart.setBorderPainted(false);
+		theStart.addActionListener(this);
+		theStart.setVisible(false); // Hide it initially until 3 players are present
+		theWaitPanel.add(theStart);
 
 		waitChatScroll.setBounds(920, 0, 360, 600); 
 		waitChatScroll.setOpaque(false);
@@ -430,14 +546,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		waitChatField.setBackground(new Color(0, 0, 0, 80)); 
 		waitChatField.addActionListener(this); 
 		theWaitPanel.add(waitChatField);
-		
-		// add to the menu panel
-
-		// make buttons invisible
-
-		// add action listener to buttons
-
-		// orginize to the buttons to into and array
 
 		// Join Menu
 		theJoinPanel = new GeneralPanel();
@@ -492,9 +600,28 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theHelpPanel.add(theHelpTitle);
 		theHelpTitle.setFont(fntTitle);
 		theHelpTitle.setForeground(Color.white);
-
 		theHelpTitle.setBounds(0, 75, 1280, 75);
-		
+
+		theHelpButton.setFont(fntButton);
+		theHelpButton.setBounds(900, 550, 200, 50);
+		theHelpButton.setForeground(Color.white);
+		theHelpButton.setOpaque(false);
+		theHelpButton.setContentAreaFilled(false);
+		theHelpButton.setBorderPainted(false);
+		theHelpButton.addActionListener(this);
+		theHelpPanel.add(theHelpButton);
+
+		theHelpText.setBounds(200, 300, 820, 200);
+		theHelpText.setEditable(false);
+		theHelpText.setLineWrap(true);
+		theHelpText.setWrapStyleWord(true);
+		theHelpText.setFont(new Font("Arial", Font.PLAIN, 20));
+		theHelpText.setForeground(Color.white);
+		theHelpText.setOpaque(false);
+		theHelpText.setBackground(new Color(0, 0, 0, 50));
+		theHelpPanel.add(theHelpText);
+
+
 		// About Menu
 		theAboutPanel = new GeneralPanel();
 		theAboutPanel.setLayout(null);
@@ -504,14 +631,39 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theAboutTitle.setFont(fntTitle);
 		theAboutTitle.setForeground(Color.white);
 
-		theAboutTitle.setBounds(0, 75, 1280, 75);	
+		// about menu text
+		theAboutAuthor.setBounds(0, 200, 1280, 75);
+		theAboutAuthor.setHorizontalAlignment(JTextField.CENTER);
+		theAboutAuthor.setFont(fntButton);
+		theAboutAuthor.setForeground(Color.white);
+		theAboutPanel.add(theAboutAuthor);
+		theAboutDate.setBounds(0, 250, 1280, 75);
+		theAboutDate.setHorizontalAlignment(JTextField.CENTER);
+		theAboutDate.setFont(fntButton);
+		theAboutDate.setForeground(Color.white);
+		theAboutPanel.add(theAboutDate);
+		theAboutCourse.setBounds(0, 300, 1280, 75);
+		theAboutCourse.setHorizontalAlignment(JTextField.CENTER);
+		theAboutCourse.setFont(fntButton);
+		theAboutCourse.setForeground(Color.white);
+		theAboutPanel.add(theAboutCourse);
+		theAboutTeacher.setBounds(0, 350, 1280, 75);
+		theAboutTeacher.setHorizontalAlignment(JTextField.CENTER);
+		theAboutTeacher.setFont(fntButton);
+		theAboutTeacher.setForeground(Color.white);
+		theAboutPanel.add(theAboutTeacher);
+		theAboutInspirtion.setBounds(0, 400, 1280, 75);
+		theAboutInspirtion.setHorizontalAlignment(JTextField.CENTER);
+		theAboutInspirtion.setFont(fntButton);
+		theAboutInspirtion.setForeground(Color.white);
+		theAboutPanel.add(theAboutInspirtion);
 
-		// Game Menu
+		theAboutTitle.setBounds(0, 75, 1280, 75);	
 
 		// Frame
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		theFrame.setContentPane(theMenuPanel);
-		// theFrame.setContentPane(theGamePanel);
+		//theFrame.setContentPane(theGamePanel);
 		// theTimer.start();
 		theFrame.pack();
 		theFrame.setResizable(false);
@@ -520,8 +672,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public class GamePanel extends JPanel {
 
-		int tileWidth = 32;
-		int tileHeight = 32;
+		// tile variables
+		int tileWidth = 30;
+		int tileHeight = 30;
 		int GridStartX = 0;
 		int GridStartY = 0;
 		int ColumnClick;
@@ -532,7 +685,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			Graphics2D g2 = (Graphics2D) g;
 
 			// background colour
-			g2.setColor(new Color(230, 230, 230));
+			g2.setColor(new Color(84, 88, 99));
 			g2.fillRect(0, 0, 1280, 720);
 
 			// for loops to get through all 480 slots
@@ -577,10 +730,15 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public class GeneralPanel extends JPanel{
 		
 		BufferedImage imgBG = null;
+		BufferedImage imgHelp = null;
 		
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			g.drawImage(imgBG, 0, 0, null);
+			if(model.intHelpCnt == 3){
+				g.drawImage(imgHelp, 900, 250, null);
+			}
+
 		}
 		
 		// Method used to load images
@@ -611,11 +769,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			super();
 			// Load grid image
 			imgBG = loadImage("Background.png");
+			imgHelp = loadImage("Score Area.png");
 		}
+		
 	}
 
 	public static void main(String[] args) {
 		new HueCueView();
 	}
 }
-// a

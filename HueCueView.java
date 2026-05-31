@@ -16,12 +16,10 @@ import javax.swing.*;
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
 
 	// Properties
-	int intPlayerCount = 1;
-	int intPlayerNumber = 1;
+	JFrame theFrame = new JFrame("CPT");
 	boolean blnHost = false;
 	boolean blnJoined = false;
-	String username = "Host";
-	JFrame theFrame = new JFrame("CPT");
+	int intPort = 6767;
 	// game panels
 	GamePanel theGamePanel;
 	GeneralPanel theMenuPanel;
@@ -55,7 +53,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// port variables
 	JLabel thePort  = new JLabel();
 	String strIP = "";
-	int intPort = 6767;
 	
 	//Waiting room stuff
 	JTextArea waitChatArea = new JTextArea();
@@ -76,7 +73,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Help Menu
 	JLabel theHelpTitle = new JLabel("Help", SwingConstants.CENTER);
 	JTextArea theHelpText = new JTextArea(/* insert game explanation here */);
-	int intHelpCnt = 0;
 	JButton theHelpButton = new JButton("Next");
 	// use theBack to go back to main menu
 
@@ -121,7 +117,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				
 			if (!waitChatField.getText().trim().equals("")) {
 				if (Socket != null) {
-					Socket.sendText("<"+this.username+"> "+waitChatField.getText());
+					Socket.sendText("<"+model.username+"> "+waitChatField.getText());
 				}
 				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
 			}
@@ -134,7 +130,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 			String targetIP = theIPInput.getText();
 			int targetPort = Integer.parseInt(thePortNum.getText());
-			username = theUserName.getText();
+			model.username = theUserName.getText();
 			
 			// Safety check: Don't try connecting if they didn't replace the placeholder
 			if (targetIP.equals("") || targetIP.trim().isEmpty()) {
@@ -146,9 +142,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.out.println("Attempting connection to: " + targetIP);
 			clientConnect(targetIP, targetPort);
 			// send text when user joins game
-			Socket.sendText("<JOIN> "+this.username);
-			Socket.sendText("<SYSTEM> "+this.username+" joined the room");
-			blnJoined = true;
+			Socket.sendText("<JOIN> "+model.username);
+			Socket.sendText("<SYSTEM> "+model.username+" joined the room");
+			this.blnJoined = true;
 			
 			// --- TRANSPORT TO THE WAITING ROOM ---
 			// Move the back button to the waiting room panel dynamically
@@ -159,8 +155,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.revalidate();
 			theFrame.repaint();
 			
-			intPlayerNumber = intPlayerCount;
-			System.out.println("You are Player "+intPlayerNumber);
+			model.intPlayerNumber = model.intPlayerCount;
+			System.out.println("You are Player "+model.intPlayerNumber);
 			
 			// Socket triggered
 		} else if (evt.getSource() == Socket) {
@@ -169,23 +165,27 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			String strLine = Socket.readText();
 			// Detection of backend messages like player count, system messages
 			if(strLine.startsWith("<JOIN>")){
-				this.intPlayerCount++;
-				Socket.sendText("<COUNT> "+this.intPlayerCount);
-				System.out.println("<COUNT> "+this.intPlayerCount);
+				model.intPlayerCount++;
+				Socket.sendText("<COUNT> "+model.intPlayerCount);
+				System.out.println("<COUNT> "+model.intPlayerCount);
 			}else if(strLine.startsWith("<COUNT>")){
-				this.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
-				System.out.println(this.intPlayerCount+" Players");
+				model.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
+				System.out.println(model.intPlayerCount+" Players");
 			}else if(strLine.equals("<DISCONNECT>")){
-				this.intPlayerCount--;
-				Socket.sendText("<COUNT> "+this.intPlayerCount);
-				System.out.println("<COUNT> "+this.intPlayerCount);
+				model.intPlayerCount--;
+				Socket.sendText("<COUNT> "+model.intPlayerCount);
+				System.out.println("<COUNT> "+model.intPlayerCount);
 			// --- NETWORK COMMAND DETECTION ---
 			}else if(strLine.equals("<START>")) {
 				// Clients receive this message and instantly switch to their game boards
 				theFrame.setContentPane(theGamePanel);
 				theFrame.revalidate();
 				theFrame.repaint();
-				theTimer.start(); // Start your 60 FPS repaint loop
+				theWaitPanel.remove(waitChatField);
+				theWaitPanel.remove(waitChatScroll);
+				theGamePanel.add(waitChatField);
+				theGamePanel.add(waitChatScroll);
+				//theTimer.start(); // Start your 60 FPS repaint loop
 			}else if(strLine.equals("<CLOSE>")){
 				theBack();
 			}else{
@@ -194,17 +194,17 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 			// --- LIVE CHECK PLAYER COUNT FOR THE LOBBY BUTTON ---
 			// Enable start button if player counts are between 3 and 6 (inclusive) and user is host
-			if (this.blnHost && this.intPlayerCount >= 3 && this.intPlayerCount <= 6) {
+			if (this.blnHost && model.intPlayerCount >= 3 && model.intPlayerCount <= 6) {
 				theStart.setVisible(true);
 			} else {
 				theStart.setVisible(false);
 			}
-			if(this.intPlayerCount == 6){
+			if(model.intPlayerCount == 6){
 				theStart();
 			}
 			
 		}else if(evt.getSource() == theHost){
-			blnHost = true;
+			this.blnHost = true;
 			theWaitPanel.add(theBack);
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
@@ -212,7 +212,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			hostConnect();
 			strIP = Socket.getMyAddress();
 			theIP.setText("IP: " + strIP);
-			thePort.setText("Port: " + intPort);
+			thePort.setText("Port: " + this.intPort);
 			
 		}else if(evt.getSource() == theJoin){
 			theJoinPanel.add(theBack);
@@ -241,14 +241,14 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.exit(0);
 			
 		}else if(evt.getSource() == theBack){
-			if(theWaitPanel.isShowing() && blnHost == true){
+			if(theWaitPanel.isShowing() && this.blnHost == true){
 				Socket.sendText("<CLOSE>");
 			}
-			intHelpCnt = 0;
+			model.intHelpCnt = 0;
 			theBack();
 		}else if(evt.getSource() == theHelpButton){
-			intHelpCnt++;
-			switch (intHelpCnt) {
+			model.intHelpCnt++;
+			switch (model.intHelpCnt) {
 				case 1 -> {
                      theHelpText.setText("");
     	             theHelpText.append("The other players have to try and guess/place a tile on the color that they think the clue giver has");
@@ -337,22 +337,22 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		Socket = new SuperSocketMaster(targetIP, targetPort, this);
 		Socket.connect();
 		theConnect.setEnabled(false); // Disable to prevent multiple click spam
-		blnHost = false;
+		this.blnHost = false;
 
 	}
 	
 	public void hostConnect(){
-		if(blnHost == true){
-			Socket = new SuperSocketMaster(intPort, this);
+		if(this.blnHost == true){
+			Socket = new SuperSocketMaster(this.intPort, this);
 			Socket.connect();
 			System.out.println("Awaiting connections");
 		}
 	}
 	public void theBack(){
-		if(blnJoined == true){
+		if(this.blnJoined == true){
 			// if client presses back send text
 			Socket.sendText("<DISCONNECT>");
-			Socket.sendText("<SYSTEM> "+this.username+" left the room");
+			Socket.sendText("<SYSTEM> "+model.username+" left the room");
 			Socket.disconnect();
 			theConnect.setEnabled(true);
 		}
@@ -369,11 +369,15 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		Socket.sendText("<START>");
 		
 		// Move the host's screen to the game board immediately
+		theWaitPanel.remove(waitChatField);
+		theWaitPanel.remove(waitChatScroll);
+		theGamePanel.add(waitChatField);
+		theGamePanel.add(waitChatScroll);
 		theFrame.setContentPane(theGamePanel);
 		theFrame.revalidate();
 		theFrame.repaint();
 		// Activate the game panel update timer loop
-		theTimer.start(); 
+		//theTimer.start(); 
 	}
 
 	// Constructor
@@ -384,6 +388,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		// Panels
 		theGamePanel = new GamePanel();
+		theGamePanel.setBackground(Color.BLACK);
 		theGamePanel.setLayout(null);
 		theGamePanel.setPreferredSize(new Dimension(1280, 720));
 		theGamePanel.addMouseListener(this);
@@ -401,12 +406,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		// Text Area
 		theScroll.setBounds(960, 0, 320, 620);
-		theGamePanel.add(theScroll);
+		//theGamePanel.add(theScroll);
 
 		// Text Field
 		theField.setBounds(960, 620, 320, 100);
 		theField.addActionListener(this);
-		theGamePanel.add(theField);
+		//theGamePanel.add(theField);
 
 		// Main Menu
 		// set fonts for main menu JComponents
@@ -650,8 +655,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		// Frame
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		theFrame.setContentPane(theMenuPanel);
-		// theFrame.setContentPane(theGamePanel);
+		//theFrame.setContentPane(theMenuPanel);
+		theFrame.setContentPane(theGamePanel);
 		// theTimer.start();
 		theFrame.pack();
 		theFrame.setResizable(false);
@@ -661,8 +666,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public class GamePanel extends JPanel {
 
 		// tile variables
-		int tileWidth = 32;
-		int tileHeight = 32;
+		int tileWidth = 30;
+		int tileHeight = 30;
 		int GridStartX = 0;
 		int GridStartY = 0;
 		int ColumnClick;
@@ -673,7 +678,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			Graphics2D g2 = (Graphics2D) g;
 
 			// background colour
-			g2.setColor(new Color(230, 230, 230));
+			g2.setColor(new Color(84, 88, 99));
 			g2.fillRect(0, 0, 1280, 720);
 
 			// for loops to get through all 480 slots
@@ -723,7 +728,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			g.drawImage(imgBG, 0, 0, null);
-			if(intHelpCnt == 3){
+			if(model.intHelpCnt == 3){
 				g.drawImage(imgHelp, 900, 250, null);
 			}
 

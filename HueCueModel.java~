@@ -20,7 +20,6 @@ public class HueCueModel{
 	int intHelpCnt = 0;
 	boolean blnCueGiver = false;
 	boolean blnCueGiven = true;
-	String strUserName[] = new String[7];
 		
 	// Colour grid Array
 	private ColourTile[][] fullColourGrid = new ColourTile[16][30];
