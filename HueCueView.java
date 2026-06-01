@@ -256,12 +256,14 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 					theHelpText.setText("");
 					theHelpText.append("After the other players have chosen a tile, the clue giver gives another hint");
 				}case 3 -> {
+					theHelpPanel.repaint();
 					theHelpText.setText("");
 					theHelpText.append("The guessers can now select a new tile based on both hints given\r\n" +
 						"If the guesser gets the correct tile, they get 3 points\r\n" +
 						"If the tile chosen is one adjacent to the tile then they get 2 points\r\n" +
 						"If the tile chosen is 2 adjacent away from the correct tile they get 1 point");
 				}case 4 -> {
+					theHelpPanel.repaint();
 					theHelpText.setText("");
 					theHelpText.append("Players not within this range do not get points\r\n" +
 						"The clue giver get points equal to the number of people that scored");
@@ -269,6 +271,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 					theHelpText.setText("");
 					theHelpText.append("The player that gives hints changes with every round\r\n" + 
 						"The player with the most points at the end, wins!");
+					theHelpButton.setVisible(false);
 				}default -> {
                         }
 			}
@@ -655,8 +658,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		// Frame
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//theFrame.setContentPane(theMenuPanel);
-		theFrame.setContentPane(theGamePanel);
+		theFrame.setContentPane(theMenuPanel);
+		// theFrame.setContentPane(theGamePanel);
 		// theTimer.start();
 		theFrame.pack();
 		theFrame.setResizable(false);
