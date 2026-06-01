@@ -732,7 +732,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			super.paintComponent(g);
 			g.drawImage(imgBG, 0, 0, null);
 			if(model.intHelpCnt == 3){
-				g.drawImage(imgHelp, 900, 250, null);
+				g.drawImage(imgHelp, 882, 190, null);
 			}
 
 		}
@@ -765,7 +765,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			super();
 			// Load grid image
 			imgBG = loadImage("Background.png");
-			imgHelp = loadImage("Score Area.png");
+			imgHelp = loadImage("Help Score Area.png");
 		}
 		
 	}
