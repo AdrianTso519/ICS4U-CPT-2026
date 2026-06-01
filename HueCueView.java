@@ -155,9 +155,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.revalidate();
 			theFrame.repaint();
 			
-			model.intPlayerNumber = model.intPlayerCount;
-			System.out.println("You are Player "+model.intPlayerNumber);
-			
 			// Socket triggered
 		} else if (evt.getSource() == Socket) {
 			
@@ -165,16 +162,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			String strLine = Socket.readText();
 			// Detection of backend messages like player count, system messages
 			if(strLine.startsWith("<JOIN>")){
-				model.intPlayerCount++;
-				Socket.sendText("<COUNT> "+model.intPlayerCount);
-				System.out.println("<COUNT> "+model.intPlayerCount);
+				if(blnHost == true){
+					model.storeUserName(strLine.substring(6).trim(), Socket);
+				}
 			}else if(strLine.startsWith("<COUNT>")){
 				model.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
 				System.out.println(model.intPlayerCount+" Players");
 			}else if(strLine.equals("<DISCONNECT>")){
-				model.intPlayerCount--;
-				Socket.sendText("<COUNT> "+model.intPlayerCount);
-				System.out.println("<COUNT> "+model.intPlayerCount);
+				if(blnHost == true){
+					model.removeUserName(strLine.substring(13).trim(), Socket);
+				}
 			// --- NETWORK COMMAND DETECTION ---
 			}else if(strLine.equals("<START>")) {
 				// Clients receive this message and instantly switch to their game boards
@@ -210,11 +207,14 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theFrame.revalidate();
 			theFrame.repaint();
 			hostConnect();
+			model.strUserName[1] = model.username;
+			model.intPlayerCount = 1;
 			strIP = Socket.getMyAddress();
 			theIP.setText("IP: " + strIP);
 			thePort.setText("Port: " + this.intPort);
 			
 		}else if(evt.getSource() == theJoin){
+			System.out.println("I am Player "+model.intPlayerNumber);
 			theJoinPanel.add(theBack);
 			theFrame.setContentPane(theJoinPanel);
 			theFrame.revalidate();
@@ -245,6 +245,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				Socket.sendText("<CLOSE>");
 			}
 			model.intHelpCnt = 0;
+			model.strUserName = null;
 			theBack();
 		}else if(evt.getSource() == theHelpButton){
 			model.intHelpCnt++;

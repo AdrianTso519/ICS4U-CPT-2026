@@ -14,7 +14,7 @@ public class HueCueModel{
 	// Properties
 	String username = "Host";
 	int intPlayerCount = 1;
-	int intPlayerNumber = 1;
+	int intPlayerNumber = 0;
 	int intCueGiver = 0;
 	int intCueCount = 1;
 	int intHelpCnt = 0;
@@ -39,6 +39,37 @@ public class HueCueModel{
 		RandomRowCol[0] = (int)(Math.random() * 16) + 1;
 		RandomRowCol[1] = (int)(Math.random() * 30) + 1;
 		return RandomRowCol;
+	}
+	
+	public void storeUserName(String strClientName, SuperSocketMaster Socket){
+		// Scans through the 6 player numbers
+		for(int intCount = 1; intCount <= 6; intCount++){
+			// Stores in the first empty one
+			if(strUserName[intCount] == null){
+				strUserName[intCount] = strClientName;
+				intPlayerCount++;
+				
+				Socket.sendText("<COUNT> "+intPlayerCount);
+				System.out.println(intCount+" "+strUserName[intCount]);
+				
+				break;
+			}
+		}
+	}
+	
+	public void removeUserName(String strClientName, SuperSocketMaster Socket){
+		// Scans through the 6 player numbers
+		for(int intCount = 1; intCount <= 6; intCount++){
+			// Removes the username if it matches the one left
+			if (strUserName[intCount] != null && strUserName[intCount].equals(strClientName)){
+				strUserName[intCount] = null;
+				intPlayerCount--;
+				
+				Socket.sendText("<COUNT> "+intPlayerCount);
+				
+				break;
+			}
+		}
 	}
 	
 	public void nextRound(SuperSocketMaster Socket){
