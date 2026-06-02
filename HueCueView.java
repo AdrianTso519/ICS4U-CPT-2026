@@ -207,7 +207,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}else if(evt.getSource() == theHost){
 			this.blnHost = true;
 			theWaitPanel.add(theBack);
-			theFrame.setContentPane(theWaitPanel);
+			theFrame.setContentPane(theGamePanel);
 			theFrame.revalidate();
 			theFrame.repaint();
 			hostConnect();
