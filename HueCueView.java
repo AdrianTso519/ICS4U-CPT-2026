@@ -16,6 +16,8 @@ import javax.swing.*;
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
 
 	// Properties
+	int ColumnClick = -100;
+	int RowClick = -100;
 	JFrame theFrame = new JFrame("CPT");
 	boolean blnHost = false;
 	boolean blnJoined = false;
@@ -31,6 +33,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// timer
 	Timer theTimer = new Timer(1000 / 60, this);
 	Timer theGameTimer = new Timer(20000, this);
+	Timer theScoreTimer = new Timer(10000, this);
 
 	// Main Menu
 	JButton theHost = new JButton("Host");
@@ -106,10 +109,19 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void actionPerformed(ActionEvent evt) {
 		// Field triggered
 		if(evt.getSource() == theGameTimer){
-			
+			theGameTimer.stop();
+			Socket.sendText("<TIME>"); // later used to draw other player's choices
+			model.nextState(Socket);
+			stateChanges();
+			System.out.println(model.intGameState);
+		}else if(evt.getSource() == theScoreTimer){
+			theScoreTimer.stop();
+			model.nextRound(Socket);
+			model.nextState(Socket);
+			stateChanges();
+			System.out.println(model.intCueGiver+" "+model.intGameState);
 		}else if(evt.getSource() == theTimer){
 			theGamePanel.repaint();
-			
 		}else if (evt.getSource() == theField) {
 			System.out.println("Field event triggered");
 			Socket.sendText(theField.getText());
@@ -120,7 +132,27 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				
 			if (!waitChatField.getText().trim().equals("")) {
 				if (Socket != null) {
-					Socket.sendText("<"+model.username+"> "+waitChatField.getText());
+					if(model.intCueGiver == model.intPlayerNumber){
+						if(model.intGameState == 1 && model.blnCueGiven == false){
+							Socket.sendText("<SYSETM> The First Cue is: "+waitChatField.getText());
+							Socket.sendText("<CUE1>");
+							model.nextState(Socket);
+							System.out.println(model.intGameState);
+							theGameTimer.start();
+							model.blnCueGiven = true;
+						}else if(model.intGameState == 3 && model.blnCueGiven == false){
+							Socket.sendText("<SYSETM> The Second Cue is: "+waitChatField.getText());
+							Socket.sendText("<CUE2>");
+							model.nextState(Socket);
+							System.out.println(model.intGameState);
+							theGameTimer.start();
+							model.blnCueGiven = true;
+						}else{
+							Socket.sendText("<"+model.username+"> "+waitChatField.getText());
+						}
+					}else{
+						Socket.sendText("<"+model.username+"> "+waitChatField.getText());
+					}
 				}
 				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
 			}
@@ -192,6 +224,47 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				String strPlayers = strLine.substring(11);
 				model.loadPlayerList(strPlayers);
 				waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber);
+			}else if(strLine.startsWith("<CUER>")){
+				model.intCueGiver = Integer.parseInt(strLine.substring(6,7));
+				if(model.intCueGiver == model.intPlayerNumber){
+					model.blnCueGiver = true;
+				}else{
+					model.blnCueGiver = false;
+				}
+			}else if(strLine.startsWith("<STATE>")){
+				model.intGameState = Integer.parseInt(strLine.substring(7,8));
+				stateChanges();
+			}else if(strLine.equals("<CUE1>")){
+				waitChatArea.append("<SYSTEM> You have 20 seconds to place your first guess\n");
+			}else if(strLine.equals("<CUE2>")){
+				waitChatArea.append("<SYSTEM> You have 20 seconds to place your second guess\n");
+			}else if(strLine.equals("<TIME>")){
+				// later used to send tile info
+			}else if(strLine.startsWith("<TARGET>")){
+				String strTile = strLine.substring(8);
+				String[] strTargetTile = strTile.split(",");
+
+				int intRow = Integer.parseInt(strTargetTile[0]);
+				int intCol = Integer.parseInt(strTargetTile[1]);
+
+				model.intRandomTile[0] = intRow;
+				model.intRandomTile[1] = intCol;
+				
+				model.intMyScore += model.getScore(model.intRandomTile, RowClick, ColumnClick);
+				if(model.getScore(model.intRandomTile, RowClick, ColumnClick) > 0){
+					Socket.sendText("<SCORED?> Y");
+				}else{
+					Socket.sendText("<SCORED?> N");
+				}
+				waitChatArea.append("<SYSTEM> Your Score: "+model.intMyScore+"\n");
+			}else if(strLine.startsWith("<SCORED?>")){
+				if(model.intCueGiver == model.intPlayerNumber){
+					String strKey = (strLine.substring(10, 11));
+					if(strKey.equals("Y")){
+						model.intMyScore += 1;
+					}
+					waitChatArea.append("<SYSTEM> Your Score: "+model.intMyScore+"\n");
+				}
 			}else{
 				waitChatArea.append(strLine+"\n");
 			}
@@ -286,6 +359,32 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}
 	}
 
+	public void stateChanges(){
+		if(model.intGameState == 1){
+			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the first Cue\n");
+			if(model.intCueGiver == model.intPlayerNumber){
+				model.blnCueGiven = false;
+				model.intRandomTile = model.generateTargetTile();
+				char chrLetter = (char) ('A' + model.intRandomTile[0] - 1);
+				waitChatArea.append("<SYSTEM> Your target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
+				waitChatArea.append("<SYSTEM> Please enter a one-word cue\n");
+			}
+		}else if(model.intGameState == 3){
+			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the second Cue\n");
+			if(model.intCueGiver == model.intPlayerNumber){
+				model.blnCueGiven = false;
+				waitChatArea.append("<SYSTEM> Please enter a two-word cue\n");
+			}
+		}else if(model.intGameState == 5){
+			if(model.intCueGiver == model.intPlayerNumber){
+				char chrLetter = (char) ('A' + model.intRandomTile[0] - 1);
+				Socket.sendText("<SYSTEM> The target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
+				Socket.sendText("<TARGET>"+model.intRandomTile[0]+","+model.intRandomTile[1]);
+				theScoreTimer.start();
+			}
+		}
+	}
+
 	public void mouseMoved(MouseEvent evt) {
 	}
 
@@ -316,8 +415,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		int StartY = theGamePanel.GridStartY;
 
 		// Convert coordinates to array (rows and columns)
-		int ColumnClick = (MouseX - StartX) / TileWidth;
-		int RowClick = (MouseY - StartY) / TileHeight;
+		ColumnClick = (MouseX - StartX) / TileWidth;
+		RowClick = (MouseY - StartY) / TileHeight;
 		if (RowClick >= 0 && RowClick < 16 && ColumnClick >= 0 && ColumnClick < 30) {
 			theGamePanel.passClickPos(ColumnClick, RowClick);
 		}else{
@@ -379,7 +478,15 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Broadcast start signal to all connected clients
 		Socket.sendText("<START>");
 		model.sendPlayerList(Socket);
-		waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber);
+		
+		if(blnHost){
+			waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber+"\n");
+			model.nextRound(Socket);
+			model.nextState(Socket);
+			stateChanges();
+		}else{
+			waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber+"\n");
+		}
 		
 		// Move the host's screen to the game board immediately
 		theWaitPanel.remove(waitChatField);
@@ -527,7 +634,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theStart.setContentAreaFilled(false);
 		theStart.setBorderPainted(false);
 		theStart.addActionListener(this);
-		theStart.setVisible(false); // Hide it initially until 3 players are present
+		theStart.setVisible(true); // Hide it initially until 3 players are present
 		theWaitPanel.add(theStart);
 
 		waitChatScroll.setBounds(920, 0, 360, 600); 
