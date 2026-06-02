@@ -30,6 +30,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// timer
 	Timer theTimer = new Timer(1000 / 60, this);
+	Timer theGameTimer = new Timer(20000, this);
 
 	// Main Menu
 	JButton theHost = new JButton("Host");
@@ -104,7 +105,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Mandatory Methods
 	public void actionPerformed(ActionEvent evt) {
 		// Field triggered
-		if(evt.getSource() == theTimer){
+		if(evt.getSource() == theGameTimer){
+			
+		}else if(evt.getSource() == theTimer){
 			theGamePanel.repaint();
 			
 		}else if (evt.getSource() == theField) {
@@ -207,7 +210,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}else if(evt.getSource() == theHost){
 			this.blnHost = true;
 			theWaitPanel.add(theBack);
-			theFrame.setContentPane(theGamePanel);
+			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
 			hostConnect();
@@ -667,7 +670,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		theFrame.setContentPane(theMenuPanel);
 		// theFrame.setContentPane(theGamePanel);
-		// theTimer.start();
+		theTimer.start();
 		theFrame.pack();
 		theFrame.setResizable(false);
 		theFrame.setVisible(true);
@@ -675,21 +678,25 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public class GamePanel extends JPanel {
 
+		BufferedImage imgCord = null;
+		
 		// tile variables
-		int tileWidth = 30;
-		int tileHeight = 30;
-		int GridStartX = 0;
-		int GridStartY = 0;
-		int ColumnClick;
-		int RowClick;
+		int tileWidth = 29;
+		int tileHeight = 29;
+		int GridStartX = 25;
+		int GridStartY = 25;
+		int ColumnClick = -100;
+		int RowClick = -100;
 
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			Graphics2D g2 = (Graphics2D) g;
 
 			// background colour
-			g2.setColor(new Color(84, 88, 99));
+			g2.setColor(new Color(40, 40, 40));
 			g2.fillRect(0, 0, 1280, 720);
+			
+			g2.drawImage(imgCord, 0, 0, null);
 
 			// for loops to get through all 480 slots
 			for (int row = 0; row < 16; row++) {
@@ -720,14 +727,44 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// Will switch to game a game piece later
 			g2.setColor(Color.GREEN);
 			g2.setStroke(new BasicStroke(3));
-			g2.drawRect(this.ColumnClick*tileHeight,this.RowClick*tileWidth,tileWidth,tileHeight);
+			g2.drawRect(this.ColumnClick*tileHeight+GridStartX,this.RowClick*tileWidth+GridStartY,tileWidth,tileHeight);
+			
+		}
+			// Method used to load images
+		public BufferedImage loadImage(String strFileName){  
+			// Try to read from jar file
+			InputStream imgClass = null;
+			imgClass = this.getClass().getResourceAsStream(strFileName);
+
+			if(imgClass != null){
+				try{
+					return ImageIO.read(imgClass);
+				}catch(IOException e){
+				}
+			}
+
+			// Try to read from local file
+			try{
+				BufferedImage theImg = ImageIO.read(new File(strFileName));
+				return theImg;
+			}catch(IOException e){
+				System.out.println("Unable to load image: " + strFileName);
+				return null;
+			}
 		}
 		
 		// Method used to pass position of where you clicked
 		public void passClickPos(int ColumnClick, int RowClick){
 			this.ColumnClick = ColumnClick;
 			this.RowClick = RowClick;
-		}		
+		}	
+		
+		public GamePanel(){
+			super();
+			// Load cord image
+			imgCord = loadImage("Coordinates.png");
+		}	
+		
 	}
 
 	public class GeneralPanel extends JPanel{
