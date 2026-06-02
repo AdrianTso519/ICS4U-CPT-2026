@@ -165,14 +165,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				if(blnHost == true){
 					model.storeUserName(strLine.substring(6).trim(), Socket);
 				}
-			}else if(strLine.startsWith("<STORE>")){
-				int intIndex = Integer.parseInt(strLine.substring(8,9));
-				String strName = strLine.substring(10).trim();
-				model.clientStoreUserName(intIndex, strName);
-			}else if(strLine.startsWith("<REMOVE>")){
-				int intIndex = Integer.parseInt(strLine.substring(9,10));
-				String strName = strLine.substring(11).trim();
-				model.clientRemoveUserName(intIndex, strName);
 			}else if(strLine.startsWith("<COUNT>")){
 				model.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
 				System.out.println(model.intPlayerCount+" Players");
@@ -363,7 +355,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void theBack(){
 		if(this.blnJoined == true){
 			// if client presses back send text
-			Socket.sendText("<DISCONNECT>");
+			Socket.sendText("<DISCONNECT> "+model.username);
 			Socket.sendText("<SYSTEM> "+model.username+" left the room");
 			Socket.disconnect();
 			theConnect.setEnabled(true);

@@ -168,7 +168,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}else if(strLine.startsWith("<COUNT>")){
 				model.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
 				System.out.println(model.intPlayerCount+" Players");
-			}else if(strLine.equals("<DISCONNECT>")){
+			}else if(strLine.startsWith("<DISCONNECT>")){
 				if(blnHost == true){
 					model.removeUserName(strLine.substring(13).trim(), Socket);
 				}
@@ -355,7 +355,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void theBack(){
 		if(this.blnJoined == true){
 			// if client presses back send text
-			Socket.sendText("<DISCONNECT>");
+			Socket.sendText("<DISCONNECT> "+model.username);
 			Socket.sendText("<SYSTEM> "+model.username+" left the room");
 			Socket.disconnect();
 			theConnect.setEnabled(true);

@@ -50,6 +50,7 @@ public class HueCueModel{
 				intPlayerCount++;
 				
 				Socket.sendText("<COUNT> "+intPlayerCount);
+				System.out.println(intCount+" "+strUserName[intCount]);
 				
 				break;
 			}

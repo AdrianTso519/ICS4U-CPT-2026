@@ -58,6 +58,7 @@ public class HueCueModel{
 	}
 	
 	public void removeUserName(String strClientName, SuperSocketMaster Socket){
+		System.out.println("Removing: " + strClientName);
 		// Scans through the 6 player numbers
 		for(int intCount = 1; intCount <= 6; intCount++){
 			// Removes the username if it matches the one left
