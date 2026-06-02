@@ -14,7 +14,7 @@ public class HueCueModel{
 	// Properties
 	String username = "Host";
 	int intPlayerCount = 1;
-	int intPlayerNumber = 0;
+	int intPlayerNumber = 1;
 	int intCueGiver = 0;
 	int intCueCount = 1;
 	int intHelpCnt = 0;
@@ -69,6 +69,38 @@ public class HueCueModel{
 				Socket.sendText("<COUNT> "+intPlayerCount);
 				
 				break;
+			}
+		}
+	}
+	
+	public void sendPlayerList(SuperSocketMaster Socket){
+		String strLine = "<PLAYERS> ";
+		
+		for(int intCount = 1; intCount <= 6; intCount++){
+			if(strUserName[intCount] == null){
+				strLine += ",";
+			}else{
+				strLine += strUserName[intCount] + ",";
+			}
+		}
+		
+		Socket.sendText(strLine);
+		System.out.println(strLine);
+	}
+	
+	public void loadPlayerList(String strLine){
+		String[] strPlayers = strLine.split(",", -1);
+		
+		for(int intCount = 1; intCount <= 6; intCount++){
+			if(strPlayers[intCount - 1].equals("")){
+				strUserName[intCount] = null;
+			} else {
+				strUserName[intCount] = strPlayers[intCount - 1];
+			}
+			
+			if(strPlayers[intCount].equals(username)){
+				intPlayerNumber = intCount+1;
+				System.out.println("I am player "+intPlayerNumber);
 			}
 		}
 	}

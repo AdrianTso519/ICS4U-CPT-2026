@@ -185,6 +185,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				//theTimer.start(); // Start your 60 FPS repaint loop
 			}else if(strLine.equals("<CLOSE>")){
 				theBack();
+			}else if(strLine.startsWith("<PLAYERS>")){
+				String strPlayers = strLine.substring(11);
+				model.loadPlayerList(strPlayers);
+				waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber);
 			}else{
 				waitChatArea.append(strLine+"\n");
 			}
@@ -245,7 +249,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				Socket.sendText("<CLOSE>");
 			}
 			model.intHelpCnt = 0;
-			model.strUserName = null;
+			//model.strUserName = null;
 			theBack();
 		}else if(evt.getSource() == theHelpButton){
 			model.intHelpCnt++;
@@ -371,6 +375,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		
 		// Broadcast start signal to all connected clients
 		Socket.sendText("<START>");
+		model.sendPlayerList(Socket);
+		waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber);
 		
 		// Move the host's screen to the game board immediately
 		theWaitPanel.remove(waitChatField);
