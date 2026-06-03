@@ -191,7 +191,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 			// Socket triggered
 		} else if (evt.getSource() == Socket) {
-			
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
 			// Detection of backend messages like player count, system messages
@@ -234,9 +233,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				model.intGameState = Integer.parseInt(strLine.substring(7,8));
 				stateChanges();
 			}else if(strLine.equals("<CUE1>")){
-				waitChatArea.append("<SYSTEM> You have 20 seconds to place your first guess\n");
+				waitChatArea.append("<SYSTEM> You have 20 seconds to guess the Hue!\n");
 			}else if(strLine.equals("<CUE2>")){
-				waitChatArea.append("<SYSTEM> You have 20 seconds to place your second guess\n");
+				waitChatArea.append("<SYSTEM> You have 20 seconds to guess the Hue\n");
 			}else if(strLine.startsWith("<TARGET>")){
 				String strTile = strLine.substring(8);
 				String[] strTargetTile = strTile.split(",");
@@ -273,6 +272,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				
 			}else{
 				waitChatArea.append(strLine+"\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
 			
 			// --- LIVE CHECK PLAYER COUNT FOR THE LOBBY BUTTON ---
@@ -814,6 +814,14 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		BufferedImage imgCord = null;
 		BufferedImage imgScoreArea = null;
 		
+		BufferedImage imgP1 = null;
+		BufferedImage imgP2 = null;
+		BufferedImage imgP3 = null;
+		BufferedImage imgP4 = null;
+		BufferedImage imgP5 = null;
+		BufferedImage imgP6 = null;
+		BufferedImage imgYOU = null;
+		
 		// tile variables
 		int tileWidth = 29;
 		int tileHeight = 29;
@@ -861,33 +869,25 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			
 			// Highlights the selected tile (TEMPORARY)
 			// Will switch to game a game piece later
-			g2.setColor(Color.GREEN);
-			g2.setStroke(new BasicStroke(3));
-			g2.drawRect(this.ColumnClick*tileHeight+GridStartX,this.RowClick*tileWidth+GridStartY,tileWidth,tileHeight);
+			g2.drawImage(imgYOU, this.ColumnClick*tileHeight+GridStartX,this.RowClick*tileWidth+GridStartY, null);
 			
 			// P1
-			g2.setColor(Color.RED);
-			g2.drawRect(model.intUserClicks[1][0]*tileHeight+GridStartX,model.intUserClicks[1][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			g2.drawImage(imgP1, model.intUserClicks[1][0]*tileHeight+GridStartX,model.intUserClicks[1][1]*tileWidth+GridStartY, null);
 			
 			// P2
-			g2.setColor(Color.BLUE);
-			g2.drawRect(model.intUserClicks[2][0]*tileHeight+GridStartX,model.intUserClicks[2][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			g2.drawImage(imgP2, model.intUserClicks[2][0]*tileHeight+GridStartX,model.intUserClicks[2][1]*tileWidth+GridStartY, null);
 			
 			// P3
-			g2.setColor(Color.YELLOW);
-			g2.drawRect(model.intUserClicks[3][0]*tileHeight+GridStartX,model.intUserClicks[3][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			g2.drawImage(imgP3, model.intUserClicks[3][0]*tileHeight+GridStartX,model.intUserClicks[3][1]*tileWidth+GridStartY, null);
 			
 			// P4
-			g2.setColor(Color.PINK);
-			g2.drawRect(model.intUserClicks[4][0]*tileHeight+GridStartX,model.intUserClicks[4][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			g2.drawImage(imgP4, model.intUserClicks[4][0]*tileHeight+GridStartX,model.intUserClicks[4][1]*tileWidth+GridStartY, null);
 			
 			// P5
-			g2.setColor(Color.BLACK);
-			g2.drawRect(model.intUserClicks[5][0]*tileHeight+GridStartX,model.intUserClicks[5][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			g2.drawImage(imgP5, model.intUserClicks[5][0]*tileHeight+GridStartX,model.intUserClicks[5][1]*tileWidth+GridStartY, null);
 			
 			// P6
-			g2.setColor(Color.ORANGE);
-			g2.drawRect(model.intUserClicks[6][0]*tileHeight+GridStartX,model.intUserClicks[6][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			g2.drawImage(imgP6, model.intUserClicks[6][0]*tileHeight+GridStartX,model.intUserClicks[6][1]*tileWidth+GridStartY, null);
 			
 			g2.drawImage(imgScoreArea, GridStartX-1 + (intRandY - 3) * tileWidth, GridStartY-1 + (intRandX - 3) * tileHeight, null);
 
@@ -932,6 +932,13 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// Load cord image
 			imgCord = loadImage("Coordinates.png");
 			imgScoreArea = loadImage("Game Score Area.png");
+			imgP1 = loadImage("P1.png");
+			imgP2 = loadImage("P2.png");
+			imgP3 = loadImage("P3.png");
+			imgP4 = loadImage("P4.png");
+			imgP5 = loadImage("P5.png");
+			imgP6 = loadImage("P6.png");
+			imgYOU = loadImage("YOU.png");
 		}	
 		
 	}
