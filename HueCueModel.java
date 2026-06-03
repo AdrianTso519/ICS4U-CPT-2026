@@ -25,6 +25,7 @@ public class HueCueModel{
 	String strUserName[] = new String[7];
 	int intUserScore[] = new int[7];
 	int intRandomTile[] = new int[2];
+	int intUserClicks[][] = new int[7][2];
 		
 	// Colour grid Array
 	private ColourTile[][] fullColourGrid = new ColourTile[16][30];
@@ -37,6 +38,16 @@ public class HueCueModel{
 		}
 	}
 
+	public void savePlayerPos(int intUserNumber, int intUserClickX, int intUserClickY){
+		for(int intCount = 1; intCount <= 6; intCount++){
+			if(intCount == intUserNumber){
+				intUserClicks[intCount][0] = intUserClickX;
+				intUserClicks[intCount][1] = intUserClickY;
+				break;
+			}
+		}
+	}
+	
 	public int[] generateTargetTile(){
 		 int[] RandomRowCol = new int[2]; 
 		// Random Row

@@ -237,8 +237,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				waitChatArea.append("<SYSTEM> You have 20 seconds to place your first guess\n");
 			}else if(strLine.equals("<CUE2>")){
 				waitChatArea.append("<SYSTEM> You have 20 seconds to place your second guess\n");
-			}else if(strLine.equals("<TIME>")){
-				// later used to send tile info
 			}else if(strLine.startsWith("<TARGET>")){
 				String strTile = strLine.substring(8);
 				String[] strTargetTile = strTile.split(",");
@@ -265,7 +263,13 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 					waitChatArea.append("<SYSTEM> Your Score: "+model.intMyScore+"\n");
 				}
 			}else if(strLine.startsWith("<PLAYERPOS>")){
-				// draw other players game pieces based on the position received
+				String strTile = strLine.substring(12);
+				String[] strClickedTile = strTile.split(",");
+				int intUNumber = Integer.parseInt(strClickedTile[0]);
+				int intUX = Integer.parseInt(strClickedTile[1]);
+				int intUY = Integer.parseInt(strClickedTile[2]);
+				model.savePlayerPos(intUNumber, intUX, intUY);
+				
 			}else{
 				waitChatArea.append(strLine+"\n");
 			}
@@ -362,6 +366,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public void stateChanges(){
 		if(model.intGameState == 1){
+			for(int intCount = 1; intCount <= 6; intCount++){
+				model.intUserClicks[intCount][0] = -100;
+				model.intUserClicks[intCount][1] = -100;
+			}
 			theGamePanel.passRandPos(-1000, -1000);
 			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the first Cue\n");
 			theGamePanel.removeMouseListener(this);
@@ -393,10 +401,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				char chrLetter = (char) ('A' + model.intRandomTile[0] - 1);
 				Socket.sendText("<SYSTEM> The target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
 				Socket.sendText("<TARGET>"+model.intRandomTile[0]+","+model.intRandomTile[1]);
-				theGamePanel.passRandPos(model.intRandomTile[0],model.intRandomTile[1]);
 				theScoreTimer.start();
 			}
 			Socket.sendText("<PLAYERPOS> "+model.intPlayerNumber+","+theGamePanel.ColumnClick+","+theGamePanel.RowClick);
+			theGamePanel.passRandPos(model.intRandomTile[0],model.intRandomTile[1]);
 		}
 	}
 
@@ -853,6 +861,31 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			g2.setColor(Color.GREEN);
 			g2.setStroke(new BasicStroke(3));
 			g2.drawRect(this.ColumnClick*tileHeight+GridStartX,this.RowClick*tileWidth+GridStartY,tileWidth,tileHeight);
+			
+			// P1
+			g2.setColor(Color.RED);
+			g2.drawRect(model.intUserClicks[1][0]*tileHeight+GridStartX,model.intUserClicks[1][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			
+			// P2
+			g2.setColor(Color.BLUE);
+			g2.drawRect(model.intUserClicks[2][0]*tileHeight+GridStartX,model.intUserClicks[2][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			
+			// P3
+			g2.setColor(Color.YELLOW);
+			g2.drawRect(model.intUserClicks[3][0]*tileHeight+GridStartX,model.intUserClicks[3][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			
+			// P4
+			g2.setColor(Color.PINK);
+			g2.drawRect(model.intUserClicks[4][0]*tileHeight+GridStartX,model.intUserClicks[4][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			
+			// P5
+			g2.setColor(Color.BLACK);
+			g2.drawRect(model.intUserClicks[5][0]*tileHeight+GridStartX,model.intUserClicks[5][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			
+			// P6
+			g2.setColor(Color.ORANGE);
+			g2.drawRect(model.intUserClicks[6][0]*tileHeight+GridStartX,model.intUserClicks[6][1]*tileWidth+GridStartY,tileWidth,tileHeight);
+			
 			g2.drawImage(imgScoreArea, GridStartX-1 + (intRandY - 3) * tileWidth, GridStartY-1 + (intRandX - 3) * tileHeight, null);
 
 			
