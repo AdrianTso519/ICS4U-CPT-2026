@@ -23,6 +23,7 @@ public class HueCueModel{
 	boolean blnCueGiver = false;
 	boolean blnCueGiven = true;
 	String strUserName[] = new String[7];
+	int intUserScore[] = new int[7];
 	int intRandomTile[] = new int[2];
 		
 	// Colour grid Array
@@ -76,7 +77,7 @@ public class HueCueModel{
 		}
 	}
 	
-	public void sendPlayerList(SuperSocketMaster Socket){
+	public void sendPlayerData(SuperSocketMaster Socket){
 		String strLine = "<PLAYERS> ";
 		
 		for(int intCount = 1; intCount <= 6; intCount++){
@@ -85,13 +86,14 @@ public class HueCueModel{
 			}else{
 				strLine += strUserName[intCount] + ",";
 			}
+			intUserScore[intCount] = 0;
 		}
 		
 		Socket.sendText(strLine);
 		System.out.println(strLine);
 	}
 	
-	public void loadPlayerList(String strLine){
+	public void loadPlayerData(String strLine){
 		String[] strPlayers = strLine.split(",", -1);
 		
 		for(int intCount = 1; intCount <= 6; intCount++){
@@ -105,6 +107,7 @@ public class HueCueModel{
 				intPlayerNumber = intCount+1;
 				System.out.println("I am player "+intPlayerNumber);
 			}
+			intUserScore[intCount] = 0;
 		}
 	}
 	

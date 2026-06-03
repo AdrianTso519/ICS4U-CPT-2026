@@ -13,7 +13,7 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
-public class HueCueView implements ActionListener, MouseMotionListener, MouseListener {
+public class HueCueView implements ActionListener, MouseMotionListener, MouseListener{
 
 	// Properties
 	int ColumnClick = -100;
@@ -33,7 +33,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// timer
 	Timer theTimer = new Timer(1000 / 60, this);
 	Timer theGameTimer = new Timer(20000, this);
-	Timer theScoreTimer = new Timer(10000, this);
+	Timer theScoreTimer = new Timer(15000, this);
 
 	// Main Menu
 	JButton theHost = new JButton("Host");
@@ -110,7 +110,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Field triggered
 		if(evt.getSource() == theGameTimer){
 			theGameTimer.stop();
-			Socket.sendText("<TIME>"); // later used to draw other player's choices
 			model.nextState(Socket);
 			stateChanges();
 			System.out.println(model.intGameState);
@@ -222,7 +221,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				theBack();
 			}else if(strLine.startsWith("<PLAYERS>")){
 				String strPlayers = strLine.substring(11);
-				model.loadPlayerList(strPlayers);
+				model.loadPlayerData(strPlayers);
 				waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber);
 			}else if(strLine.startsWith("<CUER>")){
 				model.intCueGiver = Integer.parseInt(strLine.substring(6,7));
@@ -265,6 +264,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 					}
 					waitChatArea.append("<SYSTEM> Your Score: "+model.intMyScore+"\n");
 				}
+			}else if(strLine.startsWith("<PLAYERPOS>")){
+				// draw other players game pieces based on the position received
 			}else{
 				waitChatArea.append(strLine+"\n");
 			}
@@ -361,7 +362,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public void stateChanges(){
 		if(model.intGameState == 1){
+			theGamePanel.passRandPos(-1000, -1000);
 			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the first Cue\n");
+			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
 				model.blnCueGiven = false;
 				model.intRandomTile = model.generateTargetTile();
@@ -369,19 +372,31 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				waitChatArea.append("<SYSTEM> Your target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
 				waitChatArea.append("<SYSTEM> Please enter a one-word cue\n");
 			}
+		}else if(model.intGameState == 2){
+			if(model.intCueGiver != model.intPlayerNumber){
+				theGamePanel.addMouseListener(this);
+			}
 		}else if(model.intGameState == 3){
 			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the second Cue\n");
+			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
 				model.blnCueGiven = false;
 				waitChatArea.append("<SYSTEM> Please enter a two-word cue\n");
 			}
+		}else if(model.intGameState == 4){
+			if(model.intCueGiver != model.intPlayerNumber){
+				theGamePanel.addMouseListener(this);
+			}
 		}else if(model.intGameState == 5){
+			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
 				char chrLetter = (char) ('A' + model.intRandomTile[0] - 1);
 				Socket.sendText("<SYSTEM> The target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
 				Socket.sendText("<TARGET>"+model.intRandomTile[0]+","+model.intRandomTile[1]);
+				theGamePanel.passRandPos(model.intRandomTile[0],model.intRandomTile[1]);
 				theScoreTimer.start();
 			}
+			Socket.sendText("<PLAYERPOS> "+model.intPlayerNumber+","+theGamePanel.ColumnClick+","+theGamePanel.RowClick);
 		}
 	}
 
@@ -477,7 +492,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		
 		// Broadcast start signal to all connected clients
 		Socket.sendText("<START>");
-		model.sendPlayerList(Socket);
+		model.sendPlayerData(Socket);
 		
 		if(blnHost){
 			waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber+"\n");
@@ -511,7 +526,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theGamePanel.setBackground(Color.BLACK);
 		theGamePanel.setLayout(null);
 		theGamePanel.setPreferredSize(new Dimension(1280, 720));
-		theGamePanel.addMouseListener(this);
+		//theGamePanel.addMouseListener(this);
 		theGamePanel.addMouseMotionListener(this);
 		
 		// menu panel
@@ -786,6 +801,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public class GamePanel extends JPanel {
 
 		BufferedImage imgCord = null;
+		BufferedImage imgScoreArea = null;
 		
 		// tile variables
 		int tileWidth = 29;
@@ -794,6 +810,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		int GridStartY = 25;
 		int ColumnClick = -100;
 		int RowClick = -100;
+		int intRandX = -100;
+		int intRandY = -100;
 
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
@@ -835,6 +853,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			g2.setColor(Color.GREEN);
 			g2.setStroke(new BasicStroke(3));
 			g2.drawRect(this.ColumnClick*tileHeight+GridStartX,this.RowClick*tileWidth+GridStartY,tileWidth,tileHeight);
+			g2.drawImage(imgScoreArea, GridStartX-1 + (intRandY - 3) * tileWidth, GridStartY-1 + (intRandX - 3) * tileHeight, null);
+
 			
 		}
 			// Method used to load images
@@ -866,10 +886,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			this.RowClick = RowClick;
 		}	
 		
+		public void passRandPos(int intRandX, int intRandY){
+			this.intRandX = intRandX;
+			this.intRandY = intRandY;
+		}
+		
 		public GamePanel(){
 			super();
 			// Load cord image
 			imgCord = loadImage("Coordinates.png");
+			imgScoreArea = loadImage("Game Score Area.png");
 		}	
 		
 	}
