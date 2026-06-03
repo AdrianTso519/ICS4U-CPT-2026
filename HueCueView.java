@@ -247,6 +247,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				model.intRandomTile[0] = intRow;
 				model.intRandomTile[1] = intCol;
 				
+				theGamePanel.passRandPos(intRow, intCol);
 				model.intMyScore += model.getScore(model.intRandomTile, RowClick, ColumnClick);
 				if(model.getScore(model.intRandomTile, RowClick, ColumnClick) > 0){
 					Socket.sendText("<SCORED?> Y");
@@ -371,6 +372,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				model.intUserClicks[intCount][1] = -100;
 			}
 			theGamePanel.passRandPos(-1000, -1000);
+			theGamePanel.passClickPos(-100, -100);
 			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the first Cue\n");
 			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
@@ -402,8 +404,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				Socket.sendText("<SYSTEM> The target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
 				Socket.sendText("<TARGET>"+model.intRandomTile[0]+","+model.intRandomTile[1]);
 				theScoreTimer.start();
+			}else{
+				Socket.sendText("<PLAYERPOS> " + model.intPlayerNumber + "," + ColumnClick + "," + RowClick);
 			}
-			Socket.sendText("<PLAYERPOS> "+model.intPlayerNumber+","+theGamePanel.ColumnClick+","+theGamePanel.RowClick);
 			theGamePanel.passRandPos(model.intRandomTile[0],model.intRandomTile[1]);
 		}
 	}
