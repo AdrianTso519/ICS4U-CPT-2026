@@ -29,6 +29,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	GeneralPanel theAboutPanel;
 	GeneralPanel theJoinPanel;
 	GeneralPanel theWaitPanel; 
+	JPanel theGamePanelOverlay = new JPanel();
 
 	// timer
 	Timer theTimer = new Timer(1000 / 60, this);
@@ -41,6 +42,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JButton theHelp = new JButton("Help");
 	JButton theAbout = new JButton("About");
 	JButton theQuit = new JButton("Quit");
+	Font fntLabels = new Font("Impact", 0, 30);
 	Font fntButton = new Font("Impact", 0, 30);
 	Font fntTitle = new Font("Impact", 0, 75);
 	JLabel theTitleScreen = new JLabel("Hues & Cues", SwingConstants.CENTER);
@@ -92,12 +94,19 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Game Menu
 	// use the same text area
 	// use the same text field
-	JLabel theP1Points = new JLabel("Player 1: " /* Add variable of player 1 points */);
-	JLabel theP2Points = new JLabel("Player 2: " /* Add variable of player 2 points */);
-	JLabel theP3Points = new JLabel("Player 2: " /* Add variable of player 3 points */);
-	JLabel theP4Points = new JLabel("Player 4: " /* Add variable of player 4 points */);
-	JLabel theP5Points = new JLabel("Player 5: " /* Add variable of player 5 points */);
-	JLabel theP6Points = new JLabel("Player 6: " /* Add variable of player 6 points */);
+	JLabel theP1Points = new JLabel("Score: ", SwingConstants.CENTER);
+	JLabel theP2Points = new JLabel("Score: ", SwingConstants.CENTER);
+	JLabel theP3Points = new JLabel("Score: ", SwingConstants.CENTER);
+	JLabel theP4Points = new JLabel("Score: ", SwingConstants.CENTER);
+	JLabel theP5Points = new JLabel("Score: ", SwingConstants.CENTER);
+	JLabel theP6Points = new JLabel("Score: ", SwingConstants.CENTER);
+	
+	JLabel theP1Name = new JLabel("Player 1: ", SwingConstants.CENTER);
+	JLabel theP2Name = new JLabel("Player 2: ", SwingConstants.CENTER);
+	JLabel theP3Name = new JLabel("Player 3: ", SwingConstants.CENTER);
+	JLabel theP4Name = new JLabel("Player 4: ", SwingConstants.CENTER);
+	JLabel theP5Name = new JLabel("Player 5: ", SwingConstants.CENTER);
+	JLabel theP6Name = new JLabel("Player 6: ", SwingConstants.CENTER);
 	JComponent GameMenu[];
 
 	// Network Connection Properties
@@ -208,6 +217,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// --- NETWORK COMMAND DETECTION ---
 			}else if(strLine.equals("<START>")) {
 				// Clients receive this message and instantly switch to their game boards
+				showLabels(model.intPlayerCount);
 				theFrame.setContentPane(theGamePanel);
 				theFrame.revalidate();
 				theFrame.repaint();
@@ -484,6 +494,34 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.out.println("Awaiting connections");
 		}
 	}
+	
+	public void showLabels(int intPlayerCount){
+		// Store labels into arrays to allow easy visible toggling
+		JLabel[] nameLabels = { theP1Name, theP2Name, theP3Name, theP4Name, theP5Name, theP6Name };
+		JLabel[] scoreLabels = { theP1Points, theP2Points, theP3Points, theP4Points, theP5Points, theP6Points };
+
+		for (int intCount = 0; intCount < 6; intCount++) {
+			if (intCount < intPlayerCount) {
+				nameLabels[intCount].setVisible(true);
+				scoreLabels[intCount].setVisible(true);
+			} else {
+				nameLabels[intCount].setVisible(false);
+				scoreLabels[intCount].setVisible(false);
+			}
+		}
+	}
+	
+	public void hideLabels(int intPlayerCount){
+		// Store labels into arrays to allow easy visible toggling
+		JLabel[] nameLabels = { theP1Name, theP2Name, theP3Name, theP4Name, theP5Name, theP6Name };
+		JLabel[] scoreLabels = { theP1Points, theP2Points, theP3Points, theP4Points, theP5Points, theP6Points };
+
+		for (int intCount = 0; intCount < 6; intCount++) {
+			nameLabels[intCount].setVisible(false);
+			scoreLabels[intCount].setVisible(false);
+		}
+	}
+	
 	public void theBack(){
 		if(this.blnJoined == true){
 			// if client presses back send text
@@ -522,6 +560,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theFrame.setContentPane(theGamePanel);
 		theFrame.revalidate();
 		theFrame.repaint();
+		showLabels(model.intPlayerCount);
 		// Activate the game panel update timer loop
 		//theTimer.start(); 
 	}
@@ -539,6 +578,74 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theGamePanel.setPreferredSize(new Dimension(1280, 720));
 		//theGamePanel.addMouseListener(this);
 		theGamePanel.addMouseMotionListener(this);
+		
+		
+		// set up username & score labels in the game panel
+		theP1Name.setBounds(63, 536, 273, 29);
+		theP1Name.setForeground(Color.WHITE);
+		theP1Name.setFont(fntLabels);
+		theGamePanel.add(theP1Name);
+		theP1Name.setVisible(false);
+		theP1Points.setBounds(63, 565, 273, 29);
+		theP1Points.setForeground(Color.WHITE);
+		theP1Points.setFont(fntLabels);
+		theGamePanel.add(theP1Points);
+		theP1Points.setVisible(false);
+		
+		theP2Name.setBounds(336, 536, 273, 29);
+		theP2Name.setForeground(Color.WHITE);
+		theP2Name.setFont(fntLabels);
+		theGamePanel.add(theP2Name);
+		theP2Name.setVisible(false);
+		theP2Points.setBounds(336, 565, 273, 29);
+		theP2Points.setForeground(Color.WHITE);
+		theP2Points.setFont(fntLabels);
+		theGamePanel.add(theP2Points);
+		theP2Points.setVisible(false);
+		
+		theP3Name.setBounds(609, 536, 273, 29);
+		theP3Name.setForeground(Color.WHITE);
+		theP3Name.setFont(fntLabels);
+		theGamePanel.add(theP3Name);
+		theP3Name.setVisible(false);
+		theP3Points.setBounds(609, 565, 273, 29);
+		theP3Points.setForeground(Color.WHITE);
+		theP3Points.setFont(fntLabels);
+		theGamePanel.add(theP3Points);
+		theP3Points.setVisible(false);
+		
+		theP4Name.setBounds(63, 621, 273, 29);
+		theP4Name.setForeground(Color.WHITE);
+		theP4Name.setFont(fntLabels);
+		theGamePanel.add(theP4Name);
+		theP4Name.setVisible(false);
+		theP4Points.setBounds(63, 650, 273, 29);
+		theP4Points.setForeground(Color.WHITE);
+		theP4Points.setFont(fntLabels);
+		theGamePanel.add(theP4Points);
+		theP4Points.setVisible(false);
+		
+		theP5Name.setBounds(336, 621, 273, 29);
+		theP5Name.setForeground(Color.WHITE);
+		theP5Name.setFont(fntLabels);
+		theGamePanel.add(theP5Name);
+		theP5Name.setVisible(false);
+		theP5Points.setBounds(336, 650, 273, 29);
+		theP5Points.setForeground(Color.WHITE);
+		theP5Points.setFont(fntLabels);
+		theGamePanel.add(theP5Points);
+		theP5Points.setVisible(false);
+		
+		theP6Name.setBounds(609, 621, 273, 29);
+		theP6Name.setForeground(Color.WHITE);
+		theP6Name.setFont(fntLabels);
+		theGamePanel.add(theP6Name);
+		theP6Name.setVisible(false);
+		theP6Points.setBounds(609, 650, 273, 29);
+		theP6Points.setForeground(Color.WHITE);
+		theP6Points.setFont(fntLabels);
+		theGamePanel.add(theP6Points);
+		theP6Points.setVisible(false);
 		
 		// menu panel
 		theMenuPanel = new GeneralPanel();
@@ -926,7 +1033,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			this.intRandX = intRandX;
 			this.intRandY = intRandY;
 		}
-		
+	
 		public GamePanel(){
 			super();
 			// Load cord image
