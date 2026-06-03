@@ -16,6 +16,7 @@ import javax.swing.*;
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener{
 
 	// Properties
+	static boolean blnOnMain = false;
 	int ColumnClick = -100;
 	int RowClick = -100;
 	JFrame theFrame = new JFrame("CPT");
@@ -45,7 +46,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	Font fntLabels = new Font("Impact", 0, 30);
 	Font fntButton = new Font("Impact", 0, 30);
 	Font fntTitle = new Font("Impact", 0, 75);
-	JLabel theTitleScreen = new JLabel("Hues & Cues", SwingConstants.CENTER);
 
 	// Host Menu/Waiting Room
 	JLabel theWaitingRoom = new JLabel("Waiting...", SwingConstants.CENTER);
@@ -373,6 +373,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
                         }
 			}
 		}
+		if(theMenuPanel.isShowing()){
+			blnOnMain = true;
+		}else{
+			blnOnMain = false;
+		}
 	}
 
 	public void stateChanges(){
@@ -673,7 +678,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theHelp.setFont(fntButton);
 		theAbout.setFont(fntButton);
 		theQuit.setFont(fntButton);
-		theTitleScreen.setFont(fntTitle);
 		theBack.setFont(fntButton);
 
 		// set bounds of main menu JComponents
@@ -682,7 +686,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theHelp.setBounds(570, 400, 140, 50);
 		theAbout.setBounds(570, 475, 140, 50);
 		theQuit.setBounds(570, 550, 140, 50);
-		theTitleScreen.setBounds(0, 75, 1280, 80);
 		theBack.setBounds(590, 550, 100, 50);
 
 		// add the buttons to the menu panel
@@ -691,7 +694,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theMenuPanel.add(theHelp);
 		theMenuPanel.add(theAbout);
 		theMenuPanel.add(theQuit);
-		theMenuPanel.add(theTitleScreen);
 
 		// make the buttons invisible (just the text)
 		theHost.setOpaque(false);
@@ -720,7 +722,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theAbout.setForeground(Color.white);
 		theQuit.setForeground(Color.white);
 		theBack.setForeground(Color.white);
-		theTitleScreen.setForeground(Color.white);
 		
 		// add a listener to the buttons
 		theHost.addActionListener(this);
@@ -920,6 +921,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		BufferedImage imgCord = null;
 		BufferedImage imgScoreArea = null;
+		BufferedImage imgLogo = null;
 		
 		BufferedImage imgP1 = null;
 		BufferedImage imgP2 = null;
@@ -948,6 +950,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			g2.fillRect(0, 0, 1280, 720);
 			
 			g2.drawImage(imgCord, 0, 0, null);
+			g2.drawImage(imgLogo, 0, 635, null);
 
 			// for loops to get through all 480 slots
 			for (int row = 0; row < 16; row++) {
@@ -1039,6 +1042,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// Load cord image
 			imgCord = loadImage("Coordinates.png");
 			imgScoreArea = loadImage("Game Score Area.png");
+			imgLogo = loadImage("Small Logo.png");
 			imgP1 = loadImage("P1.png");
 			imgP2 = loadImage("P2.png");
 			imgP3 = loadImage("P3.png");
@@ -1054,6 +1058,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		
 		BufferedImage imgBG = null;
 		BufferedImage imgHelp = null;
+		BufferedImage imgBigLogo = null;
+		BufferedImage imgLogo = null;
 		
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
@@ -1061,6 +1067,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			if(model.intHelpCnt == 3){
 				g.drawImage(imgHelp, 882, 190, null);
 			}
+			if(HueCueView.blnOnMain == true){
+				g.drawImage(imgBigLogo, 433, 84, null);
+			}else{
+				g.drawImage(imgLogo, 0, 635, null);
+			}
+			
 
 		}
 		
@@ -1093,6 +1105,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// Load grid image
 			imgBG = loadImage("Background.png");
 			imgHelp = loadImage("Help Score Area.png");
+			imgBigLogo = loadImage("Main Logo.png");
+			imgLogo = loadImage("Small Logo.png");
 		}
 		
 	}
