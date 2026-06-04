@@ -229,8 +229,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}else if(strLine.equals("<CLOSE>")){
 				theBack();
 			}else if(strLine.startsWith("<PLAYERS>")){
-				String strPlayers = strLine.substring(11);
+				String strPlayers = strLine.substring(10);
 				model.loadPlayerData(strPlayers);
+				showUserNameLabels(model.intPlayerCount);
+				showUserScoreLabels(model.intPlayerCount);
 				waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber);
 			}else if(strLine.startsWith("<CUER>")){
 				model.intCueGiver = Integer.parseInt(strLine.substring(6,7));
@@ -263,14 +265,22 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				}else{
 					Socket.sendText("<SCORED?> N");
 				}
-				waitChatArea.append("<SYSTEM> Your Score: "+model.intMyScore+"\n");
+				Socket.sendText("<USERSCORE> "+model.intPlayerNumber+" "+model.intMyScore);
+				waitChatArea.append("<SYSTEM> You got "+model.getScore(model.intRandomTile, RowClick, ColumnClick)+" points!\n");
+				model.loadUserScore(model.intPlayerNumber, model.intMyScore);
+				showUserScoreLabels(model.intPlayerCount);
 			}else if(strLine.startsWith("<SCORED?>")){
+				int intRoundScore = 0;
 				if(model.intCueGiver == model.intPlayerNumber){
 					String strKey = (strLine.substring(10, 11));
 					if(strKey.equals("Y")){
 						model.intMyScore += 1;
+						intRoundScore += 1;
 					}
-					waitChatArea.append("<SYSTEM> Your Score: "+model.intMyScore+"\n");
+					waitChatArea.append("<SYSTEM> You got "+intRoundScore+" points!\n");
+					Socket.sendText("<USERSCORE> "+model.intPlayerNumber+" "+model.intMyScore);
+					model.loadUserScore(model.intPlayerNumber, model.intMyScore);
+					showUserScoreLabels(model.intPlayerCount);
 				}
 			}else if(strLine.startsWith("<PLAYERPOS>")){
 				String strTile = strLine.substring(12);
@@ -280,6 +290,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				int intUY = Integer.parseInt(strClickedTile[2]);
 				model.savePlayerPos(intUNumber, intUX, intUY);
 				
+			}else if(strLine.startsWith("<USERSCORE>")){
+				int intUserNumber = Integer.parseInt(strLine.substring(12,13));
+				int intUserPoint = Integer.parseInt(strLine.substring(14));
+				model.loadUserScore(intUserNumber, intUserPoint);
+				showUserScoreLabels(model.intPlayerCount);
 			}else{
 				waitChatArea.append(strLine+"\n");
 				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
@@ -527,6 +542,20 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}
 	}
 	
+	public void showUserNameLabels(int intPlayerCount){
+		JLabel[] nameLabels = { theP1Name, theP2Name, theP3Name, theP4Name, theP5Name, theP6Name };
+		for (int intCount = 0; intCount < 6; intCount++) {
+			nameLabels[intCount].setText("Player "+(intCount+1)+": "+model.strUserName[intCount+1]);
+		}
+	}
+	
+	public void showUserScoreLabels(int intPlayerCount){
+		JLabel[] scoreLabels = { theP1Points, theP2Points, theP3Points, theP4Points, theP5Points, theP6Points };
+		for (int intCount = 0; intCount < 6; intCount++) {
+			scoreLabels[intCount].setText("Score: "+model.intUserScore[intCount+1]);
+		}
+	}
+	
 	public void theBack(){
 		if(this.blnJoined == true){
 			// if client presses back send text
@@ -566,6 +595,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theFrame.revalidate();
 		theFrame.repaint();
 		showLabels(model.intPlayerCount);
+		showUserNameLabels(model.intPlayerCount);
+		showUserScoreLabels(model.intPlayerCount);
 		// Activate the game panel update timer loop
 		//theTimer.start(); 
 	}

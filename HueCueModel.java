@@ -122,6 +122,10 @@ public class HueCueModel{
 		}
 	}
 	
+	public void loadUserScore(int intUserNumber, int intUserPoint){
+		intUserScore[intUserNumber] = intUserPoint;
+	}
+	
 	public void nextRound(SuperSocketMaster Socket){
 		intGameState = 0;
 		intCueGiver++;
