@@ -192,6 +192,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// --- TRANSPORT TO THE WAITING ROOM ---
 			// Move the back button to the waiting room panel dynamically
 			theWaitPanel.add(theBack);
+			theBack.setBounds(360, 550, 200, 60);
+			theStart.setVisible(false);
 			
 			// Swap the main frame content pane to show the wait lobby
 			theFrame.setContentPane(theWaitPanel);
@@ -314,6 +316,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}else if(evt.getSource() == theHost){
 			this.blnHost = true;
 			theWaitPanel.add(theBack);
+			theBack.setBounds(360, 550, 200, 60);
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
@@ -393,6 +396,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}else{
 			blnOnMain = false;
 		}
+		if(theWaitPanel.isShowing() == false && theJoinPanel.isShowing() == false){
+			theBack.setBounds(590, 550, 100, 50);
+		}
+		theMenuPanel.repaint();
 	}
 
 	public void stateChanges(){
@@ -778,12 +785,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// set bounds
 		theWaitingRoom.setBounds(0, 75, 920, 75);
 		
-		theIP.setBounds(0, 300, 920, 75);
+		theIP.setBounds(0, 170, 920, 75);
 		theIP.setFont(fntButton);
 		theIP.setForeground(Color.white);
 		theIP.setHorizontalAlignment(JTextField.CENTER);
 		
-		thePort.setBounds(0, 350, 920, 75);
+		thePort.setBounds(0, 220, 920, 75);
 		thePort.setFont(fntButton);
 		thePort.setForeground(Color.white);
 		thePort.setHorizontalAlignment(JTextField.CENTER);
@@ -792,7 +799,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theWaitPanel.add(theIP);
 		
 		// --- START BUTTON HERE ---
-		theStart.setBounds(360, 450, 200, 60); // Centered on the left half of the lobby
+		theStart.setBounds(360, 480, 200, 60); // Centered on the left half of the lobby
 		theStart.setFont(fntButton);
 		theStart.setForeground(Color.white);
 		theStart.setOpaque(false);
@@ -979,6 +986,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// background colour
 			g2.setColor(new Color(40, 40, 40));
 			g2.fillRect(0, 0, 1280, 720);
+			g2.setColor(Color.BLACK);
+			g2.fillRect(920, 0, 360, 720);
 			
 			g2.drawImage(imgCord, 0, 0, null);
 			g2.drawImage(imgLogo, 0, 635, null);
@@ -1049,7 +1058,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 			// Try to read from local file
 			try{
-				BufferedImage theImg = ImageIO.read(new File(strFileName));
+				BufferedImage theImg = ImageIO.read(new File("assets/"+strFileName));
 				return theImg;
 			}catch(IOException e){
 				System.out.println("Unable to load image: " + strFileName);
@@ -1122,7 +1131,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 			// Try to read from local file
 			try{
-				BufferedImage theImg = ImageIO.read(new File(strFileName));
+				BufferedImage theImg = ImageIO.read(new File("assets/"+strFileName));
 				return theImg;
 			}catch(IOException e){
 				System.out.println("Unable to load image: " + strFileName);
