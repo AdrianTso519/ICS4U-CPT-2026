@@ -13,6 +13,8 @@ public class HueCueModel{
 	
 	// Properties
 	String username = "Host";
+	int intMaxRounds = 3;
+	int intRounds = 0;
 	int intMyScore = 0;
 	int intGameState = 0;
 	int intPlayerCount = 1;
