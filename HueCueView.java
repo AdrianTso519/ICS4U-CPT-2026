@@ -16,6 +16,7 @@ import javax.swing.*;
 public class HueCueView implements ActionListener, MouseMotionListener, MouseListener{
 
 	// Properties
+	boolean blnStateLocked = false;
 	static boolean blnOnMain = false;
 	int intReadyNumber = 0;
 	int intCountdown = 0;
@@ -138,10 +139,20 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}else if(evt.getSource() == theReady){
 			if(model.intGameState != 0){
 				if(blnHost){
-					this.intReadyNumber += 1;
+					intReadyNumber++;
+					if(intReadyNumber == model.intPlayerCount - 1){
+						theGameTimer.stop();
+						theScoreTimer.stop();
+						theSecondsTimer.stop();
+						model.nextState(Socket);
+						stateChanges();
+						theCountdown.setText("--");
+						Socket.sendText("<TIMER>--");
+					}
 				}else{
 					Socket.sendText("<READY>");
 				}
+
 				theReady.setEnabled(false);
 				theGamePanel.removeMouseListener(this);
 			}else{
@@ -153,6 +164,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			model.username = theUserNameInput.getText();
 			model.strUserName[1] = theUserNameInput.getText();
 		}else if(evt.getSource() == theGameTimer){
+			if(blnStateLocked){
+				return;
+			} 
+			blnStateLocked = true;
 			theGameTimer.stop();
 			if(model.intGameState != 0){
 				model.nextState(Socket);
@@ -163,6 +178,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}
 			System.out.println(model.intGameState);
 		}else if(evt.getSource() == theScoreTimer){
+			if(blnStateLocked){
+				return;
+			} 
+			blnStateLocked = true;
 			theScoreTimer.stop();
 			model.nextRound(Socket);
 			model.nextState(Socket);
@@ -265,8 +284,13 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				}
 			}else if(strLine.equals("<READY>")){
 				if(blnHost == true){
+					if (blnStateLocked) {
+						return;
+					}
+
 					intReadyNumber += 1;
 					if(intReadyNumber == model.intPlayerCount-1){
+						blnStateLocked = true;
 						theGameTimer.stop();
 						theScoreTimer.stop();
 						theSecondsTimer.stop();
@@ -499,6 +523,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	}
 
 	public void stateChanges(){
+		blnStateLocked = false;
 		if(model.intGameState == 1){
 			intReadyNumber = 0;
 			if(blnHost && model.intCueGiver == 1){
@@ -546,6 +571,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}
 			theReady.setEnabled(false);
 		}else if(model.intGameState == 2){
+			intReadyNumber = 0;
 			theCountdown.setText("--");
 			if(model.intCueGiver != model.intPlayerNumber){
 				theGamePanel.addMouseListener(this);
@@ -565,6 +591,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theSecondsTimer.stop();
 			theCountdown.setText("--");
 		}else if(model.intGameState == 4){
+			intReadyNumber = 0;
 			theCountdown.setText("--");
 			if(model.intCueGiver != model.intPlayerNumber){
 				theReady.setEnabled(true);
@@ -625,16 +652,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// Convert coordinates to array (rows and columns)
 		ColumnClick = (MouseX - StartX) / TileWidth;
 		RowClick = (MouseY - StartY) / TileHeight;
-		if (RowClick >= 0 && RowClick < 16 && ColumnClick >= 0 && ColumnClick < 30) {
-			theGamePanel.passClickPos(ColumnClick, RowClick);
-		}else{
-			// Draws the rectangle out of the screen if what you clicked isn't part of the grid
-			theGamePanel.passClickPos(-100, -100);
-		}
 
 		// Check to make sure click is inside grid boundaries
 		if (RowClick >= 0 && RowClick < 16 && ColumnClick >= 0 && ColumnClick < 30) {
-
+			theGamePanel.passClickPos(ColumnClick, RowClick);
 			// FIXED: use model instead of View array
 			HueCueModel.ColourTile clickedTile = model.getTile(RowClick, ColumnClick);
 
@@ -1213,10 +1234,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			g2.setColor(new Color(40, 40, 40));
 			g2.fillRect(0, 0, 1280, 720);
 			g2.setColor(Color.BLACK);
-			g2.fillRect(920, 0, 360, 720);
 			g2.fillRect(0, 0, 920, 529);
 			
-			g2.drawImage(imgCord, 0, 0, null);
 			g2.drawImage(imgLogo, 0, 635, null);
 
 			// for loops to get through all 480 slots
@@ -1267,7 +1286,15 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			g2.drawImage(imgP6, model.intUserClicks[6][0]*tileHeight+GridStartX,model.intUserClicks[6][1]*tileWidth+GridStartY, null);
 			
 			g2.drawImage(imgScoreArea, GridStartX-1 + (intRandY - 3) * tileWidth, GridStartY-1 + (intRandX - 3) * tileHeight, null);
-
+			
+			g2.setColor(Color.BLACK);
+			g2.fillRect(0, 0, 920, 26);
+			g2.fillRect(0, 489, 920, 40);
+			g2.fillRect(0, 26, 26, 463);
+			g2.fillRect(895, 26, 25, 463);
+			g2.fillRect(920, 0, 360, 720);
+			
+			g2.drawImage(imgCord, 0, 0, null);
 			
 		}
 			// Method used to load images

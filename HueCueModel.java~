@@ -17,6 +17,7 @@ public class HueCueModel{
 	int intRounds = 0;
 	int intMyScore = 0;
 	int intGameState = 0;
+	int intLastGameState = -1;
 	int intPlayerCount = 1;
 	int intPlayerNumber = 1;
 	int intCueGiver = 0;
@@ -55,6 +56,7 @@ public class HueCueModel{
 		int intBestScore = intUserScore[1];
 
 		for(int intCount = 1; intCount <= intPlayerCount; intCount++){
+			// Saves the highest score among all players, then return the player number
 			if(intUserScore[intCount] > intBestScore){
 				intBestScore = intUserScore[intCount];
 				intBestPlayer = intCount;
