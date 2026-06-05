@@ -121,7 +121,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Mandatory Methods
 	public void actionPerformed(ActionEvent evt) {
 		// Field triggered
-		if(evt.getSource() == theGameTimer){
+		if(evt.getSource() == theRoundInput){
+			model.intMaxRounds = Integer.parseInt(theRoundInput.getText());
+		}else if(evt.getSource() == theUserNameInput){
+			model.username = theUserNameInput.getText();
+			model.strUserName[1] = theUserNameInput.getText();
+		}else if(evt.getSource() == theGameTimer){
 			theGameTimer.stop();
 			model.nextState(Socket);
 			stateChanges();
@@ -427,13 +432,31 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public void stateChanges(){
 		if(model.intGameState == 1){
+			if(blnHost && model.intCueGiver == 1){
+				model.intRounds += 1;
+				if(model.intRounds > model.intMaxRounds){
+					int intWinner = model.getWinner();
+					Socket.sendText("<SYSTEM> Player "+model.strUserName[intWinner]+" wins!");
+					waitChatArea.append("<SYSTEM> Player "+model.strUserName[intWinner]+" wins!");
+					waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
+					return;
+				}
+				waitChatArea.append("<SYSTEM> Round "+model.intRounds+"\n");
+				Socket.sendText("\n<SYSTEM> Round "+model.intRounds);
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
+			}
 			for(int intCount = 1; intCount <= 6; intCount++){
 				model.intUserClicks[intCount][0] = -100;
 				model.intUserClicks[intCount][1] = -100;
 			}
 			theGamePanel.passRandPos(-1000, -1000);
 			theGamePanel.passClickPos(-100, -100);
-			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the first Cue\n");
+			if(blnHost){
+				Socket.sendText("<SYSTEM> Player "+model.strUserName[model.intCueGiver]+" is now giving the first Cue\n");
+				waitChatArea.append("<SYSTEM> Player "+model.strUserName[model.intCueGiver]+" is now giving the first Cue\n");
+			}
+
+			waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
 				model.blnCueGiven = false;
@@ -441,6 +464,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				char chrLetter = (char) ('A' + model.intRandomTile[0] - 1);
 				waitChatArea.append("<SYSTEM> Your target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
 				waitChatArea.append("<SYSTEM> Please enter a one-word cue\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
 		}else if(model.intGameState == 2){
 			if(model.intCueGiver != model.intPlayerNumber){
@@ -448,10 +472,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}
 		}else if(model.intGameState == 3){
 			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the second Cue\n");
+			waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
 				model.blnCueGiven = false;
 				waitChatArea.append("<SYSTEM> Please enter a two-word cue\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
 		}else if(model.intGameState == 4){
 			if(model.intCueGiver != model.intPlayerNumber){
@@ -603,6 +629,15 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void theStart(){
 		System.out.println("Host started the game session!");
 		
+		if(theUserNameInput.getText() == "" || theUserNameInput.getText() == null){
+			model.username = "Host";
+			model.strUserName[1] = "Host";
+		}else{
+			model.username = theUserNameInput.getText();
+			model.strUserName[1] = theUserNameInput.getText();
+		}
+		model.intMaxRounds = Integer.parseInt(theRoundInput.getText());
+	
 		// Broadcast start signal to all connected clients
 		Socket.sendText("<START>");
 		model.sendPlayerData(Socket);
@@ -830,6 +865,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theUserNameInput.setFont(new Font("Arial", Font.PLAIN, 24));
 		theUserNameInput.setHorizontalAlignment(JTextField.CENTER);
 		theUserNameInput.setBounds(310, 300, 300, 75); 
+		theUserNameInput.addActionListener(this); 
 		theWaitPanel.add(theUserNameInput);
 		
 		theRoundInputLabel.setBounds(0, 400, 310, 75);
@@ -840,6 +876,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theRoundInput.setFont(new Font("Arial", Font.PLAIN, 24));
 		theRoundInput.setHorizontalAlignment(JTextField.CENTER);
 		theRoundInput.setBounds(310, 400, 300, 75); 
+		theRoundInput.addActionListener(this); 
+		theRoundInput.setText(""+3); 
 		theWaitPanel.add(theRoundInput);
 		
 		// --- START BUTTON HERE ---

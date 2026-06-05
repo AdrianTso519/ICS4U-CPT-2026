@@ -50,6 +50,22 @@ public class HueCueModel{
 		}
 	}
 	
+	public int getWinner() {
+		int intBestPlayer = 1;
+		int intBestScore = intUserScore[1];
+
+		for(int intCount = 1; intCount <= intPlayerCount; intCount++){
+			// Saves the highest score among all players, then return the player number
+			if(intUserScore[intCount] > intBestScore){
+				intBestScore = intUserScore[intCount];
+				intBestPlayer = intCount;
+			}
+		}
+
+		return intBestPlayer;
+	}
+
+	
 	public int[] generateTargetTile(){
 		 int[] RandomRowCol = new int[2]; 
 		// Random Row

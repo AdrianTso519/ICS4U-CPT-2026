@@ -55,6 +55,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JScrollPane theScroll = new JScrollPane(theArea);
 	JTextField theField = new JTextField();
 	JButton theBack = new JButton("Back");
+	JTextField theUserNameInput = new JTextField();
+	JTextField theRoundInput = new JTextField();
+	JLabel theUserNameInputLabel = new JLabel("Name:", SwingConstants.RIGHT);
+	JLabel theRoundInputLabel = new JLabel("Rounds:", SwingConstants.RIGHT);
 	
 	// port variables
 	JLabel thePort  = new JLabel();
@@ -71,7 +75,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JTextField theUserName = new JTextField();
 	JTextField thePortNum = new JTextField();
 	JLabel theIPLabel = new JLabel("IP:");
-	JLabel theUserLabel = new JLabel("User:");
+	JLabel theUserLabel = new JLabel("Name:");
 	JLabel thePortLabel = new JLabel("Port:");
 	JButton theConnect = new JButton("Connect");
 	// use theBack to go back to main menu
@@ -117,7 +121,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Mandatory Methods
 	public void actionPerformed(ActionEvent evt) {
 		// Field triggered
-		if(evt.getSource() == theGameTimer){
+		if(evt.getSource() == theRoundInput){
+			model.intMaxRounds = Integer.parseInt(theRoundInput.getText());
+		}else if(evt.getSource() == theUserNameInput){
+			model.username = theUserNameInput.getText();
+			model.strUserName[1] = theUserNameInput.getText();
+		}else if(evt.getSource() == theGameTimer){
 			theGameTimer.stop();
 			model.nextState(Socket);
 			stateChanges();
@@ -142,14 +151,14 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				if (Socket != null) {
 					if(model.intCueGiver == model.intPlayerNumber){
 						if(model.intGameState == 1 && model.blnCueGiven == false){
-							Socket.sendText("<SYSETM> The First Cue is: "+waitChatField.getText());
+							Socket.sendText("<SYSTEM> The First Cue is: "+waitChatField.getText());
 							Socket.sendText("<CUE1>");
 							model.nextState(Socket);
 							System.out.println(model.intGameState);
 							theGameTimer.start();
 							model.blnCueGiven = true;
 						}else if(model.intGameState == 3 && model.blnCueGiven == false){
-							Socket.sendText("<SYSETM> The Second Cue is: "+waitChatField.getText());
+							Socket.sendText("<SYSTEM> The Second Cue is: "+waitChatField.getText());
 							Socket.sendText("<CUE2>");
 							model.nextState(Socket);
 							System.out.println(model.intGameState);
@@ -163,6 +172,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 					}
 				}
 				waitChatArea.append("<You> " + waitChatField.getText() + "\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
 
 			waitChatField.setText("");
@@ -192,6 +202,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// --- TRANSPORT TO THE WAITING ROOM ---
 			// Move the back button to the waiting room panel dynamically
 			theWaitPanel.add(theBack);
+			theBack.setBounds(360, 550, 200, 60);
+			theStart.setVisible(false);
+			theUserNameInput.setVisible(false);
+			theUserNameInputLabel.setVisible(false);
+			theRoundInput.setVisible(false);
+			theRoundInputLabel.setVisible(false);
 			
 			// Swap the main frame content pane to show the wait lobby
 			theFrame.setContentPane(theWaitPanel);
@@ -229,9 +245,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}else if(strLine.equals("<CLOSE>")){
 				theBack();
 			}else if(strLine.startsWith("<PLAYERS>")){
-				String strPlayers = strLine.substring(11);
+				String strPlayers = strLine.substring(10);
 				model.loadPlayerData(strPlayers);
+				showUserNameLabels(model.intPlayerCount);
+				showUserScoreLabels(model.intPlayerCount);
 				waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber);
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}else if(strLine.startsWith("<CUER>")){
 				model.intCueGiver = Integer.parseInt(strLine.substring(6,7));
 				if(model.intCueGiver == model.intPlayerNumber){
@@ -244,8 +263,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				stateChanges();
 			}else if(strLine.equals("<CUE1>")){
 				waitChatArea.append("<SYSTEM> You have 20 seconds to guess the Hue!\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}else if(strLine.equals("<CUE2>")){
 				waitChatArea.append("<SYSTEM> You have 20 seconds to guess the Hue\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}else if(strLine.startsWith("<TARGET>")){
 				String strTile = strLine.substring(8);
 				String[] strTargetTile = strTile.split(",");
@@ -263,14 +284,24 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				}else{
 					Socket.sendText("<SCORED?> N");
 				}
-				waitChatArea.append("<SYSTEM> Your Score: "+model.intMyScore+"\n");
+				Socket.sendText("<USERSCORE> "+model.intPlayerNumber+" "+model.intMyScore);
+				waitChatArea.append("<SYSTEM> You got "+model.getScore(model.intRandomTile, RowClick, ColumnClick)+" points!\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
+				model.loadUserScore(model.intPlayerNumber, model.intMyScore);
+				showUserScoreLabels(model.intPlayerCount);
 			}else if(strLine.startsWith("<SCORED?>")){
+				int intRoundScore = 0;
 				if(model.intCueGiver == model.intPlayerNumber){
 					String strKey = (strLine.substring(10, 11));
 					if(strKey.equals("Y")){
 						model.intMyScore += 1;
+						intRoundScore += 1;
 					}
-					waitChatArea.append("<SYSTEM> Your Score: "+model.intMyScore+"\n");
+					waitChatArea.append("<SYSTEM> You got "+intRoundScore+" points!\n");
+					waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
+					Socket.sendText("<USERSCORE> "+model.intPlayerNumber+" "+model.intMyScore);
+					model.loadUserScore(model.intPlayerNumber, model.intMyScore);
+					showUserScoreLabels(model.intPlayerCount);
 				}
 			}else if(strLine.startsWith("<PLAYERPOS>")){
 				String strTile = strLine.substring(12);
@@ -280,8 +311,14 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				int intUY = Integer.parseInt(strClickedTile[2]);
 				model.savePlayerPos(intUNumber, intUX, intUY);
 				
+			}else if(strLine.startsWith("<USERSCORE>")){
+				int intUserNumber = Integer.parseInt(strLine.substring(12,13));
+				int intUserPoint = Integer.parseInt(strLine.substring(14));
+				model.loadUserScore(intUserNumber, intUserPoint);
+				showUserScoreLabels(model.intPlayerCount);
 			}else{
 				waitChatArea.append(strLine+"\n");
+				
 				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
 			
@@ -299,6 +336,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}else if(evt.getSource() == theHost){
 			this.blnHost = true;
 			theWaitPanel.add(theBack);
+			theBack.setBounds(360, 550, 200, 60);
+			theStart.setVisible(true);
+			theUserNameInput.setVisible(true);
+			theUserNameInputLabel.setVisible(true);
+			theRoundInput.setVisible(true);
+			theRoundInputLabel.setVisible(true);
 			theFrame.setContentPane(theWaitPanel);
 			theFrame.revalidate();
 			theFrame.repaint();
@@ -340,6 +383,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			if(theWaitPanel.isShowing() && this.blnHost == true){
 				Socket.sendText("<CLOSE>");
 			}
+			if(this.Socket != null && Socket.connect() == true){
+				Socket.disconnect();
+			}
 			model.intHelpCnt = 0;
 			//model.strUserName = null;
 			theBack();
@@ -378,17 +424,39 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}else{
 			blnOnMain = false;
 		}
+		if(theWaitPanel.isShowing() == false && theJoinPanel.isShowing() == false){
+			theBack.setBounds(590, 550, 100, 50);
+		}
+		theMenuPanel.repaint();
 	}
 
 	public void stateChanges(){
 		if(model.intGameState == 1){
+			if(blnHost && model.intCueGiver == 1){
+				model.intRounds += 1;
+				if(model.intRounds > model.intMaxRounds){
+					int intWinner = model.getWinner();
+					Socket.sendText("<SYSTEM> Player "+model.strUserName[intWinner]+" wins!");
+					waitChatArea.append("<SYSTEM> Player "+model.strUserName[intWinner]+" wins!");
+					waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
+					return;
+				}
+				waitChatArea.append("<SYSTEM> Round "+model.intRounds+"\n");
+				Socket.sendText("\n<SYSTEM> Round "+model.intRounds+"\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
+			}
 			for(int intCount = 1; intCount <= 6; intCount++){
 				model.intUserClicks[intCount][0] = -100;
 				model.intUserClicks[intCount][1] = -100;
 			}
 			theGamePanel.passRandPos(-1000, -1000);
 			theGamePanel.passClickPos(-100, -100);
-			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the first Cue\n");
+			if(blnHost){
+				Socket.sendText("<SYSTEM> Player "+model.strUserName[model.intCueGiver]+" is now giving the first Cue\n");
+				waitChatArea.append("<SYSTEM> Player "+model.strUserName[model.intCueGiver]+" is now giving the first Cue\n");
+			}
+
+			waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
 				model.blnCueGiven = false;
@@ -396,6 +464,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				char chrLetter = (char) ('A' + model.intRandomTile[0] - 1);
 				waitChatArea.append("<SYSTEM> Your target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
 				waitChatArea.append("<SYSTEM> Please enter a one-word cue\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
 		}else if(model.intGameState == 2){
 			if(model.intCueGiver != model.intPlayerNumber){
@@ -403,10 +472,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}
 		}else if(model.intGameState == 3){
 			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the second Cue\n");
+			waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
 				model.blnCueGiven = false;
 				waitChatArea.append("<SYSTEM> Please enter a two-word cue\n");
+				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
 		}else if(model.intGameState == 4){
 			if(model.intCueGiver != model.intPlayerNumber){
@@ -416,7 +487,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theGamePanel.removeMouseListener(this);
 			if(model.intCueGiver == model.intPlayerNumber){
 				char chrLetter = (char) ('A' + model.intRandomTile[0] - 1);
-				Socket.sendText("<SYSTEM> The target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
+				//Socket.sendText("<SYSTEM> The target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
 				Socket.sendText("<TARGET>"+model.intRandomTile[0]+","+model.intRandomTile[1]);
 				theScoreTimer.start();
 			}else{
@@ -527,6 +598,20 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}
 	}
 	
+	public void showUserNameLabels(int intPlayerCount){
+		JLabel[] nameLabels = { theP1Name, theP2Name, theP3Name, theP4Name, theP5Name, theP6Name };
+		for (int intCount = 0; intCount < 6; intCount++) {
+			nameLabels[intCount].setText("Player "+(intCount+1)+": "+model.strUserName[intCount+1]);
+		}
+	}
+	
+	public void showUserScoreLabels(int intPlayerCount){
+		JLabel[] scoreLabels = { theP1Points, theP2Points, theP3Points, theP4Points, theP5Points, theP6Points };
+		for (int intCount = 0; intCount < 6; intCount++) {
+			scoreLabels[intCount].setText("Score: "+model.intUserScore[intCount+1]);
+		}
+	}
+	
 	public void theBack(){
 		if(this.blnJoined == true){
 			// if client presses back send text
@@ -544,6 +629,15 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void theStart(){
 		System.out.println("Host started the game session!");
 		
+		if(theUserNameInput.getText() == "" || theUserNameInput.getText() == null){
+			model.username = "Host";
+			model.strUserName[1] = "Host";
+		}else{
+			model.username = theUserNameInput.getText();
+			model.strUserName[1] = theUserNameInput.getText();
+		}
+		model.intMaxRounds = Integer.parseInt(theRoundInput.getText());
+	
 		// Broadcast start signal to all connected clients
 		Socket.sendText("<START>");
 		model.sendPlayerData(Socket);
@@ -556,6 +650,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		}else{
 			waitChatArea.append("<SYSTEM> You are Player "+model.intPlayerNumber+"\n");
 		}
+		waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 		
 		// Move the host's screen to the game board immediately
 		theWaitPanel.remove(waitChatField);
@@ -566,6 +661,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theFrame.revalidate();
 		theFrame.repaint();
 		showLabels(model.intPlayerCount);
+		showUserNameLabels(model.intPlayerCount);
+		showUserScoreLabels(model.intPlayerCount);
 		// Activate the game panel update timer loop
 		//theTimer.start(); 
 	}
@@ -747,12 +844,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		// set bounds
 		theWaitingRoom.setBounds(0, 75, 920, 75);
 		
-		theIP.setBounds(0, 300, 920, 75);
+		theIP.setBounds(0, 170, 920, 75);
 		theIP.setFont(fntButton);
 		theIP.setForeground(Color.white);
 		theIP.setHorizontalAlignment(JTextField.CENTER);
 		
-		thePort.setBounds(0, 350, 920, 75);
+		thePort.setBounds(0, 220, 920, 75);
 		thePort.setFont(fntButton);
 		thePort.setForeground(Color.white);
 		thePort.setHorizontalAlignment(JTextField.CENTER);
@@ -760,8 +857,31 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theWaitPanel.add(thePort);
 		theWaitPanel.add(theIP);
 		
+		theUserNameInputLabel.setBounds(0, 300, 310, 75);
+		theUserNameInputLabel.setFont(fntButton);
+		theUserNameInputLabel.setForeground(Color.white);
+		theWaitPanel.add(theUserNameInputLabel);
+		
+		theUserNameInput.setFont(new Font("Arial", Font.PLAIN, 24));
+		theUserNameInput.setHorizontalAlignment(JTextField.CENTER);
+		theUserNameInput.setBounds(310, 300, 300, 75); 
+		theUserNameInput.addActionListener(this); 
+		theWaitPanel.add(theUserNameInput);
+		
+		theRoundInputLabel.setBounds(0, 400, 310, 75);
+		theRoundInputLabel.setFont(fntButton);
+		theRoundInputLabel.setForeground(Color.white);
+		theWaitPanel.add(theRoundInputLabel);
+		
+		theRoundInput.setFont(new Font("Arial", Font.PLAIN, 24));
+		theRoundInput.setHorizontalAlignment(JTextField.CENTER);
+		theRoundInput.setBounds(310, 400, 300, 75); 
+		theRoundInput.addActionListener(this); 
+		theRoundInput.setText(""+3); 
+		theWaitPanel.add(theRoundInput);
+		
 		// --- START BUTTON HERE ---
-		theStart.setBounds(360, 450, 200, 60); // Centered on the left half of the lobby
+		theStart.setBounds(360, 480, 200, 60); // Centered on the left half of the lobby
 		theStart.setFont(fntButton);
 		theStart.setForeground(Color.white);
 		theStart.setOpaque(false);
@@ -828,7 +948,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		thePortLabel.setFont(fntButton);
 		thePortLabel.setForeground(Color.white);
 		theJoinPanel.add(thePortLabel);
-		theUserLabel.setBounds(425, 375, 100, 75);
+		theUserLabel.setBounds(405, 375, 100, 75);
 		theUserLabel.setFont(fntButton);
 		theUserLabel.setForeground(Color.white);
 		theJoinPanel.add(theUserLabel);
@@ -921,6 +1041,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 		BufferedImage imgCord = null;
 		BufferedImage imgScoreArea = null;
+		BufferedImage imgLogo = null;
 		
 		BufferedImage imgP1 = null;
 		BufferedImage imgP2 = null;
@@ -947,8 +1068,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// background colour
 			g2.setColor(new Color(40, 40, 40));
 			g2.fillRect(0, 0, 1280, 720);
+			g2.setColor(Color.BLACK);
+			g2.fillRect(920, 0, 360, 720);
 			
 			g2.drawImage(imgCord, 0, 0, null);
+			g2.drawImage(imgLogo, 0, 635, null);
 
 			// for loops to get through all 480 slots
 			for (int row = 0; row < 16; row++) {
@@ -1016,7 +1140,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 			// Try to read from local file
 			try{
-				BufferedImage theImg = ImageIO.read(new File(strFileName));
+				BufferedImage theImg = ImageIO.read(new File("assets/"+strFileName));
 				return theImg;
 			}catch(IOException e){
 				System.out.println("Unable to load image: " + strFileName);
@@ -1040,6 +1164,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// Load cord image
 			imgCord = loadImage("Coordinates.png");
 			imgScoreArea = loadImage("Game Score Area.png");
+			imgLogo = loadImage("Small Logo.png");
 			imgP1 = loadImage("P1.png");
 			imgP2 = loadImage("P2.png");
 			imgP3 = loadImage("P3.png");
@@ -1088,7 +1213,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 			// Try to read from local file
 			try{
-				BufferedImage theImg = ImageIO.read(new File(strFileName));
+				BufferedImage theImg = ImageIO.read(new File("assets/"+strFileName));
 				return theImg;
 			}catch(IOException e){
 				System.out.println("Unable to load image: " + strFileName);

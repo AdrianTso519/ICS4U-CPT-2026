@@ -13,6 +13,8 @@ public class HueCueModel{
 	
 	// Properties
 	String username = "Host";
+	int intMaxRounds = 3;
+	int intRounds = 0;
 	int intMyScore = 0;
 	int intGameState = 0;
 	int intPlayerCount = 1;
@@ -23,7 +25,9 @@ public class HueCueModel{
 	boolean blnCueGiver = false;
 	boolean blnCueGiven = true;
 	String strUserName[] = new String[7];
+	int intUserScore[] = new int[7];
 	int intRandomTile[] = new int[2];
+	int intUserClicks[][] = new int[7][2];
 		
 	// Colour grid Array
 	private ColourTile[][] fullColourGrid = new ColourTile[16][30];
@@ -36,6 +40,31 @@ public class HueCueModel{
 		}
 	}
 
+	public void savePlayerPos(int intUserNumber, int intUserClickX, int intUserClickY){
+		for(int intCount = 1; intCount <= 6; intCount++){
+			if(intCount == intUserNumber){
+				intUserClicks[intCount][0] = intUserClickX;
+				intUserClicks[intCount][1] = intUserClickY;
+				break;
+			}
+		}
+	}
+	
+	public int getWinner() {
+		int intBestPlayer = 1;
+		int intBestScore = intUserScore[1];
+
+		for(int intCount = 1; intCount <= intPlayerCount; intCount++){
+			if(intUserScore[intCount] > intBestScore){
+				intBestScore = intUserScore[intCount];
+				intBestPlayer = intCount;
+			}
+		}
+
+		return intBestPlayer;
+	}
+
+	
 	public int[] generateTargetTile(){
 		 int[] RandomRowCol = new int[2]; 
 		// Random Row
@@ -76,7 +105,7 @@ public class HueCueModel{
 		}
 	}
 	
-	public void sendPlayerList(SuperSocketMaster Socket){
+	public void sendPlayerData(SuperSocketMaster Socket){
 		String strLine = "<PLAYERS> ";
 		
 		for(int intCount = 1; intCount <= 6; intCount++){
@@ -85,13 +114,14 @@ public class HueCueModel{
 			}else{
 				strLine += strUserName[intCount] + ",";
 			}
+			intUserScore[intCount] = 0;
 		}
 		
 		Socket.sendText(strLine);
 		System.out.println(strLine);
 	}
 	
-	public void loadPlayerList(String strLine){
+	public void loadPlayerData(String strLine){
 		String[] strPlayers = strLine.split(",", -1);
 		
 		for(int intCount = 1; intCount <= 6; intCount++){
@@ -105,7 +135,12 @@ public class HueCueModel{
 				intPlayerNumber = intCount+1;
 				System.out.println("I am player "+intPlayerNumber);
 			}
+			intUserScore[intCount] = 0;
 		}
+	}
+	
+	public void loadUserScore(int intUserNumber, int intUserPoint){
+		intUserScore[intUserNumber] = intUserPoint;
 	}
 	
 	public void nextRound(SuperSocketMaster Socket){
@@ -135,8 +170,6 @@ public class HueCueModel{
 	}
 	
 	public int getScore(int[] RandomRowCol, int RowClick, int ColumnClick){
-
-		// Convert click from 0‑based → 1‑based
 		RowClick += 1;
 		ColumnClick += 1;
 
