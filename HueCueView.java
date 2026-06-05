@@ -17,6 +17,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// Properties
 	static boolean blnOnMain = false;
+	int intReadyNumber = 0;
+	int intCountdown = 0;
 	int ColumnClick = -100;
 	int RowClick = -100;
 	JFrame theFrame = new JFrame("CPT");
@@ -30,12 +32,12 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	GeneralPanel theAboutPanel;
 	GeneralPanel theJoinPanel;
 	GeneralPanel theWaitPanel; 
-	JPanel theGamePanelOverlay = new JPanel();
 
 	// timer
 	Timer theTimer = new Timer(1000 / 60, this);
 	Timer theGameTimer = new Timer(20000, this);
-	Timer theScoreTimer = new Timer(15000, this);
+	Timer theScoreTimer = new Timer(10000, this);
+	Timer theSecondsTimer = new Timer(1000, this);
 
 	// Main Menu
 	JButton theHost = new JButton("Host");
@@ -111,6 +113,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	JLabel theP4Name = new JLabel("Player 4: ", SwingConstants.CENTER);
 	JLabel theP5Name = new JLabel("Player 5: ", SwingConstants.CENTER);
 	JLabel theP6Name = new JLabel("Player 6: ", SwingConstants.CENTER);
+	
+	JLabel theCountdown = new JLabel("--", SwingConstants.CENTER);
+	JButton theReady = new JButton("Ready");
 	JComponent GameMenu[];
 
 	// Network Connection Properties
@@ -121,7 +126,25 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Mandatory Methods
 	public void actionPerformed(ActionEvent evt) {
 		// Field triggered
-		if(evt.getSource() == theRoundInput){
+		if(evt.getSource() == theSecondsTimer){
+			intCountdown -= 1;
+			theCountdown.setText(""+intCountdown);
+			if(intCountdown == 0){
+				theCountdown.setText(""+intCountdown);
+			}else if(intCountdown == -1){
+				theCountdown.setText("--");
+				theSecondsTimer.stop();
+			}
+			Socket.sendText("<TIMER>"+theCountdown.getText());
+		}else if(evt.getSource() == theReady){
+			if(blnHost){
+				this.intReadyNumber += 1;
+			}else{
+				Socket.sendText("<READY>");
+			}
+			theReady.setEnabled(false);
+			theGamePanel.removeMouseListener(this);
+		}else if(evt.getSource() == theRoundInput){
 			model.intMaxRounds = Integer.parseInt(theRoundInput.getText());
 		}else if(evt.getSource() == theUserNameInput){
 			model.username = theUserNameInput.getText();
@@ -156,6 +179,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 							model.nextState(Socket);
 							System.out.println(model.intGameState);
 							theGameTimer.start();
+							intCountdown = 20;
+							theCountdown.setText(""+intCountdown);
+							theSecondsTimer.start();
 							model.blnCueGiven = true;
 						}else if(model.intGameState == 3 && model.blnCueGiven == false){
 							Socket.sendText("<SYSTEM> The Second Cue is: "+waitChatField.getText());
@@ -163,6 +189,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 							model.nextState(Socket);
 							System.out.println(model.intGameState);
 							theGameTimer.start();
+							intCountdown = 20;
+							theCountdown.setText(""+intCountdown);
+							theSecondsTimer.start();
 							model.blnCueGiven = true;
 						}else{
 							Socket.sendText("<"+model.username+"> "+waitChatField.getText());
@@ -203,7 +232,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// Move the back button to the waiting room panel dynamically
 			theWaitPanel.add(theBack);
 			theBack.setBounds(360, 550, 200, 60);
-			theStart.setVisible(false);
+			theStart.setVisible(true);
+			theStart.setEnabled(false);
 			theUserNameInput.setVisible(false);
 			theUserNameInputLabel.setVisible(false);
 			theRoundInput.setVisible(false);
@@ -222,6 +252,19 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			if(strLine.startsWith("<JOIN>")){
 				if(blnHost == true){
 					model.storeUserName(strLine.substring(6).trim(), Socket);
+				}
+			}else if(strLine.equals("<READY>")){
+				if(blnHost == true){
+					intReadyNumber += 1;
+					if(intReadyNumber == model.intPlayerCount-1){
+						theGameTimer.stop();
+						theScoreTimer.stop();
+						theSecondsTimer.stop();
+						model.nextState(Socket);
+						stateChanges();
+						theCountdown.setText("--");
+						Socket.sendText("<TIMER>--");
+					}
 				}
 			}else if(strLine.startsWith("<COUNT>")){
 				model.intPlayerCount = Integer.parseInt(strLine.substring(8,9));
@@ -261,6 +304,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}else if(strLine.startsWith("<STATE>")){
 				model.intGameState = Integer.parseInt(strLine.substring(7,8));
 				stateChanges();
+			}else if(strLine.startsWith("<TIMER>")){
+				theCountdown.setText(strLine.substring(7));
 			}else if(strLine.equals("<CUE1>")){
 				waitChatArea.append("<SYSTEM> You have 20 seconds to guess the Hue!\n");
 				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
@@ -325,9 +370,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			// --- LIVE CHECK PLAYER COUNT FOR THE LOBBY BUTTON ---
 			// Enable start button if player counts are between 3 and 6 (inclusive) and user is host
 			if (this.blnHost && model.intPlayerCount >= 3 && model.intPlayerCount <= 6) {
-				theStart.setVisible(true);
+				theStart.setEnabled(true);
 			} else {
-				theStart.setVisible(false);
+				theStart.setEnabled(false);
 			}
 			if(model.intPlayerCount == 6){
 				theStart();
@@ -432,6 +477,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public void stateChanges(){
 		if(model.intGameState == 1){
+			intReadyNumber = 0;
 			if(blnHost && model.intCueGiver == 1){
 				model.intRounds += 1;
 				if(model.intRounds > model.intMaxRounds){
@@ -466,11 +512,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				waitChatArea.append("<SYSTEM> Please enter a one-word cue\n");
 				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
+			theReady.setEnabled(false);
 		}else if(model.intGameState == 2){
+			theCountdown.setText("--");
 			if(model.intCueGiver != model.intPlayerNumber){
 				theGamePanel.addMouseListener(this);
+				theReady.setEnabled(true);
 			}
 		}else if(model.intGameState == 3){
+			intReadyNumber = 0;
+			theReady.setEnabled(false);
 			waitChatArea.append("\n<SYSTEM> Player "+model.intCueGiver+" is now giving the second Cue\n");
 			waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			theGamePanel.removeMouseListener(this);
@@ -480,16 +531,23 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}
 		}else if(model.intGameState == 4){
+			theCountdown.setText("--");
 			if(model.intCueGiver != model.intPlayerNumber){
+				theReady.setEnabled(true);
 				theGamePanel.addMouseListener(this);
 			}
 		}else if(model.intGameState == 5){
+			theCountdown.setText("--");
 			theGamePanel.removeMouseListener(this);
+			theReady.setEnabled(false);
 			if(model.intCueGiver == model.intPlayerNumber){
 				char chrLetter = (char) ('A' + model.intRandomTile[0] - 1);
 				//Socket.sendText("<SYSTEM> The target tile is: "+chrLetter+model.intRandomTile[1]+"\n");
 				Socket.sendText("<TARGET>"+model.intRandomTile[0]+","+model.intRandomTile[1]);
 				theScoreTimer.start();
+				intCountdown = 10;
+				theCountdown.setText(""+intCountdown);
+				theSecondsTimer.start();
 			}else{
 				Socket.sendText("<PLAYERPOS> " + model.intPlayerNumber + "," + ColumnClick + "," + RowClick);
 			}
@@ -678,8 +736,23 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theGamePanel.setBackground(Color.BLACK);
 		theGamePanel.setLayout(null);
 		theGamePanel.setPreferredSize(new Dimension(1280, 720));
-		//theGamePanel.addMouseListener(this);
 		theGamePanel.addMouseMotionListener(this);
+		
+		theCountdown.setBounds(0, 582, 85, 53);
+		theCountdown.setOpaque(true);
+		theCountdown.setBackground(Color.BLACK);
+		theCountdown.setForeground(Color.WHITE);
+		theCountdown.setFont(fntButton);
+		theGamePanel.add(theCountdown);
+		
+		theReady.setBounds(0, 529, 85, 53);
+		theReady.setBackground(Color.BLACK);
+		theReady.setForeground(Color.WHITE);
+		theReady.setFont(fntButton);
+		theReady.addActionListener(this);
+		theReady.setEnabled(false);
+		theReady.setMargin(new Insets(1, 1, 1, 1));
+		theGamePanel.add(theReady);
 		
 		
 		// set up username & score labels in the game panel
@@ -888,7 +961,8 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theStart.setContentAreaFilled(false);
 		theStart.setBorderPainted(false);
 		theStart.addActionListener(this);
-		theStart.setVisible(true); // Hide it initially until 3 players are present
+		theStart.setVisible(true); 
+		theStart.setEnabled(true); // Disable it initially until 3 players are present
 		theWaitPanel.add(theStart);
 
 		waitChatScroll.setBounds(920, 0, 360, 600); 
