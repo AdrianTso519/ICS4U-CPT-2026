@@ -756,67 +756,67 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		
 		
 		// set up username & score labels in the game panel
-		theP1Name.setBounds(63, 536, 273, 29);
+		theP1Name.setBounds(93, 553, 273, 29);
 		theP1Name.setForeground(Color.WHITE);
 		theP1Name.setFont(fntLabels);
 		theGamePanel.add(theP1Name);
 		theP1Name.setVisible(false);
-		theP1Points.setBounds(63, 565, 273, 29);
+		theP1Points.setBounds(93, 582, 273, 29);
 		theP1Points.setForeground(Color.WHITE);
 		theP1Points.setFont(fntLabels);
 		theGamePanel.add(theP1Points);
 		theP1Points.setVisible(false);
 		
-		theP2Name.setBounds(336, 536, 273, 29);
+		theP2Name.setBounds(366, 553, 273, 29);
 		theP2Name.setForeground(Color.WHITE);
 		theP2Name.setFont(fntLabels);
 		theGamePanel.add(theP2Name);
 		theP2Name.setVisible(false);
-		theP2Points.setBounds(336, 565, 273, 29);
+		theP2Points.setBounds(366, 582, 273, 29);
 		theP2Points.setForeground(Color.WHITE);
 		theP2Points.setFont(fntLabels);
 		theGamePanel.add(theP2Points);
 		theP2Points.setVisible(false);
 		
-		theP3Name.setBounds(609, 536, 273, 29);
+		theP3Name.setBounds(639, 553, 273, 29);
 		theP3Name.setForeground(Color.WHITE);
 		theP3Name.setFont(fntLabels);
 		theGamePanel.add(theP3Name);
 		theP3Name.setVisible(false);
-		theP3Points.setBounds(609, 565, 273, 29);
+		theP3Points.setBounds(639, 582, 273, 29);
 		theP3Points.setForeground(Color.WHITE);
 		theP3Points.setFont(fntLabels);
 		theGamePanel.add(theP3Points);
 		theP3Points.setVisible(false);
 		
-		theP4Name.setBounds(63, 621, 273, 29);
+		theP4Name.setBounds(93, 638, 273, 29);
 		theP4Name.setForeground(Color.WHITE);
 		theP4Name.setFont(fntLabels);
 		theGamePanel.add(theP4Name);
 		theP4Name.setVisible(false);
-		theP4Points.setBounds(63, 650, 273, 29);
+		theP4Points.setBounds(93, 667, 273, 29);
 		theP4Points.setForeground(Color.WHITE);
 		theP4Points.setFont(fntLabels);
 		theGamePanel.add(theP4Points);
 		theP4Points.setVisible(false);
 		
-		theP5Name.setBounds(336, 621, 273, 29);
+		theP5Name.setBounds(366, 638, 273, 29);
 		theP5Name.setForeground(Color.WHITE);
 		theP5Name.setFont(fntLabels);
 		theGamePanel.add(theP5Name);
 		theP5Name.setVisible(false);
-		theP5Points.setBounds(336, 650, 273, 29);
+		theP5Points.setBounds(366, 667, 273, 29);
 		theP5Points.setForeground(Color.WHITE);
 		theP5Points.setFont(fntLabels);
 		theGamePanel.add(theP5Points);
 		theP5Points.setVisible(false);
 		
-		theP6Name.setBounds(609, 621, 273, 29);
+		theP6Name.setBounds(639, 638, 273, 29);
 		theP6Name.setForeground(Color.WHITE);
 		theP6Name.setFont(fntLabels);
 		theGamePanel.add(theP6Name);
 		theP6Name.setVisible(false);
-		theP6Points.setBounds(609, 650, 273, 29);
+		theP6Points.setBounds(639, 667, 273, 29);
 		theP6Points.setForeground(Color.WHITE);
 		theP6Points.setFont(fntLabels);
 		theGamePanel.add(theP6Points);
@@ -1144,6 +1144,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			g2.fillRect(0, 0, 1280, 720);
 			g2.setColor(Color.BLACK);
 			g2.fillRect(920, 0, 360, 720);
+			g2.fillRect(0, 0, 920, 529);
 			
 			g2.drawImage(imgCord, 0, 0, null);
 			g2.drawImage(imgLogo, 0, 635, null);
