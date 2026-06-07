@@ -18,6 +18,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Properties
 	boolean blnStateLocked = false;
 	static boolean blnOnMain = false;
+	int intRoundScore = 0;
 	int intReadyNumber = 0;
 	int intCountdown = 0;
 	int ColumnClick = -100;
@@ -36,7 +37,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	// timer
 	Timer theTimer = new Timer(1000 / 60, this);
-	Timer theGameTimer = new Timer(20000, this);
+	Timer theGameTimer = new Timer(30000, this);
 	Timer theScoreTimer = new Timer(10000, this);
 	Timer theSecondsTimer = new Timer(1000, this);
 
@@ -206,10 +207,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 							model.nextState(Socket);
 							System.out.println(model.intGameState);
 							theGameTimer.start();
-							intCountdown = 20;
+							intCountdown = 30;
 							theCountdown.setText(""+intCountdown);
 							theSecondsTimer.start();
-							Socket.sendText("<TIMERSTART>20");
+							Socket.sendText("<TIMERSTART>30");
 							model.blnCueGiven = true;
 						}else if(model.intGameState == 3 && model.blnCueGiven == false){
 							Socket.sendText("<SYSTEM> The Second Cue is: "+waitChatField.getText());
@@ -217,10 +218,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 							model.nextState(Socket);
 							System.out.println(model.intGameState);
 							theGameTimer.start();
-							intCountdown = 20;
+							intCountdown = 30;
 							theCountdown.setText(""+intCountdown);
 							theSecondsTimer.start();
-							Socket.sendText("<TIMERSTART>20");
+							Socket.sendText("<TIMERSTART>30");
 							model.blnCueGiven = true;
 						}else{
 							Socket.sendText("<"+model.username+"> "+waitChatField.getText());
@@ -347,54 +348,65 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			}else if(strLine.startsWith("<TIMER>")){
 				theCountdown.setText(strLine.substring(7));
 			}else if(strLine.equals("<CUE1>")){
-				waitChatArea.append("<SYSTEM> You have 20 seconds to guess the Hue!\n");
+				waitChatArea.append("<SYSTEM> You have 30 seconds to guess the Hue!\n");
 				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}else if(strLine.equals("<CUE2>")){
-				waitChatArea.append("<SYSTEM> You have 20 seconds to guess the Hue\n");
+				waitChatArea.append("<SYSTEM> You have 30 seconds to guess the Hue\n");
 				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
 			}else if(strLine.startsWith("<TARGET>")){
-				String strTile = strLine.substring(8);
-				String[] strTargetTile = strTile.split(",");
+				if(model.intCueGiver != model.intPlayerNumber){
+					String strTile = strLine.substring(8);
+					String[] strTargetTile = strTile.split(",");
 
-				int intRow = Integer.parseInt(strTargetTile[0]);
-				int intCol = Integer.parseInt(strTargetTile[1]);
+					int intRow = Integer.parseInt(strTargetTile[0]);
+					int intCol = Integer.parseInt(strTargetTile[1]);
 
-				model.intRandomTile[0] = intRow;
-				model.intRandomTile[1] = intCol;
-				
-				theGamePanel.passRandPos(intRow, intCol);
-				model.intMyScore += model.getScore(model.intRandomTile, RowClick, ColumnClick);
-				if(model.getScore(model.intRandomTile, RowClick, ColumnClick) > 0){
-					Socket.sendText("<SCORED?> Y");
-				}else{
-					Socket.sendText("<SCORED?> N");
+					model.intRandomTile[0] = intRow;
+					model.intRandomTile[1] = intCol;
+					
+					theGamePanel.passRandPos(intRow, intCol);
+					model.intMyScore += model.getScore(model.intRandomTile, RowClick, ColumnClick);
+					if(model.getScore(model.intRandomTile, RowClick, ColumnClick) > 0){
+						Socket.sendText("<SCORED?> Y");
+					}else{
+						Socket.sendText("<SCORED?> N");
+					}
+					Socket.sendText("<USERSCORE> "+model.intPlayerNumber+" "+model.intMyScore);
+					if(model.getScore(model.intRandomTile, RowClick, ColumnClick) != 0){
+						if(model.getScore(model.intRandomTile, RowClick, ColumnClick) == 1){
+							waitChatArea.append("<SYSTEM> You got "+model.getScore(model.intRandomTile, RowClick, ColumnClick)+" point!\n");
+						}else{
+							waitChatArea.append("<SYSTEM> You got "+model.getScore(model.intRandomTile, RowClick, ColumnClick)+" points!\n");
+						}
+					}else{
+						waitChatArea.append("<SYSTEM> You got no points! Haha!\n");
+					}
+					waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
+					model.loadUserScore(model.intPlayerNumber, model.intMyScore);
+					showUserScoreLabels(model.intPlayerCount);
 				}
-				Socket.sendText("<USERSCORE> "+model.intPlayerNumber+" "+model.intMyScore);
-				waitChatArea.append("<SYSTEM> You got "+model.getScore(model.intRandomTile, RowClick, ColumnClick)+" points!\n");
-				waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
-				model.loadUserScore(model.intPlayerNumber, model.intMyScore);
-				showUserScoreLabels(model.intPlayerCount);
 			}else if(strLine.startsWith("<SCORED?>")){
-				int intRoundScore = 0;
 				if(model.intCueGiver == model.intPlayerNumber){
 					String strKey = (strLine.substring(10, 11));
 					if(strKey.equals("Y")){
 						model.intMyScore += 1;
 						intRoundScore += 1;
 					}
-					if(intRoundScore != 0){
-						if(intRoundScore == 1){
-							waitChatArea.append("<SYSTEM> You got "+intRoundScore+" point!\n");
+					if(intRoundScore == model.intPlayerCount - 1){
+						if(intRoundScore != 0){
+							if(intRoundScore == 1){
+								waitChatArea.append("<SYSTEM> You got "+intRoundScore+" point!\n");
+							}else{
+								waitChatArea.append("<SYSTEM> You got "+intRoundScore+" points!\n");
+							}
 						}else{
-							waitChatArea.append("<SYSTEM> You got "+intRoundScore+" points!\n");
+							waitChatArea.append("<SYSTEM> You got no points! Haha!\n");
 						}
-					}else{
-						waitChatArea.append("<SYSTEM> You got no points! Haha!\n");
+						waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
+						Socket.sendText("<USERSCORE> "+model.intPlayerNumber+" "+model.intMyScore);
+						model.loadUserScore(model.intPlayerNumber, model.intMyScore);
+						showUserScoreLabels(model.intPlayerCount);
 					}
-					waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
-					Socket.sendText("<USERSCORE> "+model.intPlayerNumber+" "+model.intMyScore);
-					model.loadUserScore(model.intPlayerNumber, model.intMyScore);
-					showUserScoreLabels(model.intPlayerCount);
 				}
 			}else if(strLine.startsWith("<PLAYERPOS>")){
 				String strTile = strLine.substring(12);
@@ -524,6 +536,17 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public void stateChanges(){
 		blnStateLocked = false;
+		intRoundScore = 0;
+		if (theGameTimer.isRunning()) {
+			theGameTimer.stop();
+		}
+		if (theScoreTimer.isRunning()) {
+			theScoreTimer.stop();
+		}
+		if (theSecondsTimer.isRunning()) {
+			theSecondsTimer.stop();
+			theCountdown.setText("--");
+		}
 		if(model.intGameState == 1){
 			intReadyNumber = 0;
 			if(blnHost && model.intCueGiver == 1){
@@ -538,10 +561,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 					theReady.setText("Leave");
 					theReady.setEnabled(true);
 					theGameTimer.start();
-					intCountdown = 20;
+					intCountdown = 30;
 					theCountdown.setText(""+intCountdown);
 					theSecondsTimer.start();
-					Socket.sendText("<TIMERSTART>20");
+					Socket.sendText("<TIMERSTART>30");
 					return;
 				}
 				waitChatArea.append("<SYSTEM> Round "+model.intRounds+"\n");
@@ -555,8 +578,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			theGamePanel.passRandPos(-1000, -1000);
 			theGamePanel.passClickPos(-100, -100);
 			if(blnHost){
-				Socket.sendText("<SYSTEM> Player "+model.strUserName[model.intCueGiver]+" is now giving the first Cue\n");
-				waitChatArea.append("<SYSTEM> Player "+model.strUserName[model.intCueGiver]+" is now giving the first Cue\n");
+				if(theScoreTimer.isRunning() == false){
+					Socket.sendText("<SYSTEM> Player "+model.strUserName[model.intCueGiver]+" is now giving the first Cue\n");
+					waitChatArea.append("<SYSTEM> Player "+model.strUserName[model.intCueGiver]+" is now giving the first Cue\n");
+				}
 			}
 
 			waitChatArea.setCaretPosition(waitChatArea.getDocument().getLength());
@@ -746,7 +771,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	public void theStart(){
 		System.out.println("Host started the game session!");
 		
-		if(theUserNameInput.getText() == "" || theUserNameInput.getText() == null){
+		if(theUserNameInput.getText().trim().isEmpty() || theUserNameInput.getText() == null){
 			model.username = "Host";
 			model.strUserName[1] = "Host";
 		}else{
@@ -1293,6 +1318,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			g2.fillRect(0, 26, 26, 463);
 			g2.fillRect(895, 26, 25, 463);
 			g2.fillRect(920, 0, 360, 720);
+			
+			g2.setColor(new Color(40,40,40));
+			g2.fillRect(85, 529, 835, 151);
 			
 			g2.drawImage(imgCord, 0, 0, null);
 			
