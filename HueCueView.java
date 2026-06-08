@@ -152,7 +152,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 						model.nextState(Socket);
 						stateChanges();
 						theCountdown.setText("--");
-						Socket.sendText("<TIMER>--");
 					}
 				}else{
 					// If you are not the host, then you send a message to notify the host
@@ -317,7 +316,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 						model.nextState(Socket);
 						stateChanges();
 						theCountdown.setText("--");
-						Socket.sendText("<TIMER>--");
 					}
 				}
 			}else if(strLine.startsWith("<COUNT>")){
