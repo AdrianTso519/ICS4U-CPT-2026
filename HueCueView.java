@@ -1439,16 +1439,16 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		public GamePanel(){
 			super();
 			// Load cord image
-			imgCord = loadImage("Coordinates.png");
-			imgScoreArea = loadImage("Game Score Area.png");
-			imgLogo = loadImage("Small Logo.png");
-			imgP1 = loadImage("P1.png");
-			imgP2 = loadImage("P2.png");
-			imgP3 = loadImage("P3.png");
-			imgP4 = loadImage("P4.png");
-			imgP5 = loadImage("P5.png");
-			imgP6 = loadImage("P6.png");
-			imgYOU = loadImage("YOU.png");
+			imgCord = loadImage("/assets/Coordinates.png");
+			imgScoreArea = loadImage("/assets/Game Score Area.png");
+			imgLogo = loadImage("/assets/Small Logo.png");
+			imgP1 = loadImage("/assets/P1.png");
+			imgP2 = loadImage("/assets/P2.png");
+			imgP3 = loadImage("/assets/P3.png");
+			imgP4 = loadImage("/assets/P4.png");
+			imgP5 = loadImage("/assets/P5.png");
+			imgP6 = loadImage("/assets/P6.png");
+			imgYOU = loadImage("/assets/YOU.png");
 		}	
 		
 	}
@@ -1502,10 +1502,10 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		public GeneralPanel(){
 			super();
 			// Load grid image
-			imgBG = loadImage("Background.png");
-			imgHelp = loadImage("Help Score Area.png");
-			imgBigLogo = loadImage("Main Logo.png");
-			imgLogo = loadImage("Small Logo.png");
+			imgBG = loadImage("/assets/Background.png");
+			imgHelp = loadImage("/assets/Help Score Area.png");
+			imgBigLogo = loadImage("/assets/Main Logo.png");
+			imgLogo = loadImage("/assets/Small Logo.png");
 		}
 		
 	}

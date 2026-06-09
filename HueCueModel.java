@@ -322,24 +322,27 @@ public class HueCueModel{
 	* If the file is not found or cannot be read, an error message is printed to the terminal.
 	* @param filename	The path to the CSV file that contains grid and colour data.
 	*/
-	public void CSVGrid(String filename){
-		try(BufferedReader theReader = new BufferedReader(new FileReader(filename))){
+	public void CSVGrid(String filename) {
+		try (BufferedReader theReader = new BufferedReader(
+				new InputStreamReader(getClass().getResourceAsStream("/" + filename)))) {
+
 			String line;
-			// Continuously get data for colour grid while file has not ended
-			while((line = theReader.readLine()) != null){
+
+			while ((line = theReader.readLine()) != null) {
 				String[] colours = line.split(",");
+
 				int row = Integer.parseInt(colours[0]);
 				int column = Integer.parseInt(colours[1]);
 				int red = Integer.parseInt(colours[2]);
 				int green = Integer.parseInt(colours[3]);
 				int blue = Integer.parseInt(colours[4]);
-				
-				// take data from earlier and return it as an rgb value
-				fullColourGrid[row][column] = new ColourTile(red,green,blue);
-				
+
+				fullColourGrid[row][column] = new ColourTile(red, green, blue);
 			}
-		}catch(IOException e){
-			System.out.println("Failed to process CSV File");
+
+		} catch (Exception e) {
+			System.out.println("Failed to process CSV File: " + filename);
+			e.printStackTrace();
 		}
 	}
 	
