@@ -18,6 +18,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 	// Properties
 	boolean blnStateLocked = false;
 	static boolean blnOnMain = false;
+	boolean blnGameStarted = false;
 	int intRoundScore = 0;
 	int intTempScoreCount = 0;
 	int intReadyNumber = 0;
@@ -471,10 +472,13 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			} else {
 				theStart.setEnabled(false);
 			}
-			if(model.intPlayerCount == 6){
-				theStart();
+			if (model.intPlayerCount == 6) {
+				if (blnHost && !blnGameStarted) { 
+						blnGameStarted = true;
+						theStart();
+						// Reqires fixes later
+				}
 			}
-			
 		}else if(evt.getSource() == theHost){
 			this.blnHost = true;
 			theWaitPanel.add(theBack);
@@ -495,7 +499,6 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			strIP = Socket.getMyAddress();
 			theIP.setText("IP: " + strIP);
 			thePort.setText("Port: " + this.intPort);
-			
 		}else if(evt.getSource() == theJoin){
 			// Send the user to the join panel for ip, port, username input
 			theJoinPanel.add(theBack);
@@ -888,6 +891,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 
 	public void theReset(){
 		// Reset all variables to default & transport user back to the main menu
+		blnGameStarted = false;
 		theFrame.setContentPane(theMenuPanel);
 		theFrame.revalidate();
 		theFrame.repaint();
