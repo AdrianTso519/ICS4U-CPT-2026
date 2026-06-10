@@ -239,7 +239,9 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 							model.blnCueGiven = true;
 						}else{
 							Socket.sendText("<"+model.username+"> "+waitChatField.getText());
-						}
+						} 
+					}else if (waitChatField.getText().substring(0,5).equals("/ban ") && blnHost){
+						Socket.sendText(waitChatField.getText());
 					}else{
 						Socket.sendText("<"+model.username+"> "+waitChatField.getText());
 					}
@@ -293,7 +295,11 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 			System.out.println("Socket event triggered");
 			String strLine = Socket.readText();
 			// Detection of backend messages like player count, system messages
-			if(strLine.startsWith("<JOIN>")){
+			if(strLine.startsWith("/ban ")){
+				if(strLine.substring(5).equals(model.username) && blnHost == false){
+					theBack();
+				}
+			}else if(strLine.startsWith("<JOIN>")){
 				// If you are the host, store the username sent by the clients
 				if(blnHost == true){
 					model.storeUserName(strLine.substring(6).trim(), Socket);
