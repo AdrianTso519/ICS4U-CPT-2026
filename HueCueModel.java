@@ -20,6 +20,7 @@
 import java.io.*;
 import java.awt.*;
 
+/** Hues and Cues Game Model */
 public class HueCueModel{
 	
 	// Properties
@@ -61,6 +62,9 @@ public class HueCueModel{
 	/** The full 16x30 grid of tiles representing the game board. */
 	private ColourTile[][] fullColourGrid = new ColourTile[16][30];
 	
+	/**
+	* Represents a single colour tile on the Hues and Cues game board. Stores the RGB colour value associated with the tile.
+	*/
 	// Colour values 
 	public class ColourTile{
 		Color ColorValue;
@@ -140,7 +144,7 @@ public class HueCueModel{
 		}
 	}
 	/**
-	* Removes a player from the game when they disconnect and updates the player count.<p>
+	* Removes a player from the game when they disconnect and updates the player count. <p>
 	* This method searches for the specified username in the player arrat, <p>
 	* clears their slot, decrements the total player count, <p>
 	* and broadcasts the new count to all connected clients via the socket.
@@ -164,7 +168,7 @@ public class HueCueModel{
 	}
 	
 	/**
-	* Compiles and broadcasts a CSV-formatted string containing all active usernames and resets all player scores to zero.<p>
+	* Compiles and broadcasts a CSV-formatted string containing all active usernames and resets all player scores to zero. <p>
 	* This method goes through the current player slots, appends each username (or a comma if the slot is empty) to a message, <p>
 	* and sends the final string to all connected clients. <p>
 	* It also resets the global score array to 0.
@@ -245,15 +249,15 @@ public class HueCueModel{
 	}
 	
 	/**
-	* Advances the game to the next game state and broadcasts it to all clients.<p>
+	* Advances the game to the next game state and broadcasts it to all clients. <p>
 	* The method increments the game state variable. <p>
 	* If the state reaches 6, it resets to 1 to begin a new round cycle. <p>
-	* The states are defined as follows:<p>
-	* 1: Cue Giver provides the first cue<p>
-	* 2: Players provide their first hue guesses<p>
-	* 3: Cue Giver provides the second cue<p>
-	* 4: Players provide their final hue guesses<p>
-	* 5: Scoring calculation phase<p>
+	* The states are defined as follows: <p>
+	* 1: Cue Giver provides the first cue <p>
+	* 2: Players provide their first hue guesses <p>
+	* 3: Cue Giver provides the second cue <p>
+	* 4: Players provide their final hue guesses <p>
+	* 5: Scoring calculation phase
 	* @param Socket	SuperSocketMaster is used to broadcast the new state value to all clients.
 	*/
 	public void nextState(SuperSocketMaster Socket){
@@ -282,12 +286,12 @@ public class HueCueModel{
 	}
 	
 	/**
-	* Calculates the points a player got based on the closeness of their guess to the target tile.<p>
-	* The scoring rules are based on a square grid system:<p>
-	* 3 points: Exact match (target tile).<p>
-	* 2 points: Within the 3x3 square centered on the target.<p>
-	* 1 point: Within the 5x5 square centered on the target.<p>
-	* 0 points: Outside the 5x5 square.<p>
+	* Calculates the points a player got based on the closeness of their guess to the target tile. <p>
+	* The scoring rules are based on a square grid system: <p>
+	* 3 points: Exact match (target tile). <p>
+	* 2 points: Within the 3x3 square centered on the target. <p>
+	* 1 point: Within the 5x5 square centered on the target. <p>
+	* 0 points: Outside the 5x5 square.
 	* @param RandomRowCol	An integer array where index 0 is the row and index 1 is the column of the target tile.
 	* @param RowClick    	The row index of the player's guess.
 	* @param ColumnClick 	The column index of the player's guess.
