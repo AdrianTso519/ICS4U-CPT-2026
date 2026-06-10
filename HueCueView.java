@@ -895,6 +895,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		theFrame.setContentPane(theMenuPanel);
 		theFrame.revalidate();
 		theFrame.repaint();
+		
 		for(int intCount = 1; intCount <= 6; intCount++){
 			model.intUserClicks[intCount][0] = -100;
 			model.intUserClicks[intCount][1] = -100;
@@ -905,7 +906,19 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		for(int intCount = 1; intCount <= 6; intCount++){
 			model.intUserScore[intCount] = 0;
 		}
-		Socket.disconnect();
+
+		// --- FIX 1: Cleanly disconnect and wipe the reference ---
+		if (Socket != null) {
+			Socket.disconnect();
+			Socket = null; 
+		}
+    
+		// --- FIX 2: Re-enable the connection buttons for future games ---
+		theConnect.setEnabled(true);
+		theStart.setEnabled(false);
+		this.blnJoined = false;
+		this.blnHost = false;
+
 		model.intMaxRounds = 3;
 		model.intRounds = 0;
 		model.intMyScore = 0;
@@ -915,6 +928,7 @@ public class HueCueView implements ActionListener, MouseMotionListener, MouseLis
 		model.intCueGiver = 0;
 		model.intCueCount = 1;
 		model.intHelpCnt = 0;
+		
 		theGamePanel.remove(waitChatScroll);
 		theGamePanel.remove(waitChatField);
 		theWaitPanel.add(waitChatScroll);
